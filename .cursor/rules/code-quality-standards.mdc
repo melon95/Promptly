@@ -1,0 +1,159 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 代码质量标准
+
+## 项目结构
+
+### 文件组织
+```
+PromptPal/
+├── Models/          # SwiftData 数据模型
+├── Views/           # SwiftUI 视图组件
+├── ViewModels/      # 视图模型 (如需要)
+├── Services/        # 业务逻辑服务
+├── Utilities/       # 工具类和扩展
+├── Resources/       # 资源文件
+└── Extensions/      # Swift 扩展
+```
+
+### 关键文件
+- 应用入口: [PromptPalApp.swift](mdc:PromptPal/PromptPalApp.swift)
+- 主视图: [ContentView.swift](mdc:PromptPal/ContentView.swift)
+- 资产管理: [Assets.xcassets](mdc:PromptPal/Assets.xcassets)
+
+## 代码风格规范
+
+### Swift 编码标准
+
+#### 命名约定
+```swift
+// 类型: PascalCase
+class PromptManager { }
+struct PromptData { }
+enum PromptCategory { }
+
+// 属性和方法: camelCase
+var searchText: String
+func copyPromptToClipboard() { }
+
+// 常量: UPPER_SNAKE_CASE 或 camelCase
+static let MAX_PROMPT_LENGTH = 10000
+static let defaultHotkey = "Option+P"
+```
+
+#### 属性包装器使用
+```swift
+// SwiftData 查询
+@Query(sort: \Prompt.createdAt, order: .reverse) 
+private var prompts: [Prompt]
+
+// SwiftUI 状态管理
+@State private var searchText = ""
+@State private var isEditing = false
+
+// 环境对象
+@Environment(\.modelContext) private var modelContext
+```
+
+### SwiftUI 最佳实践
+
+#### 视图组件化
+```swift
+// 将复杂视图拆分为小组件
+struct PromptRow: View {
+    let prompt: Prompt
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(prompt.title)
+                    .font(.headline)
+                Text(prompt.content)
+                    .font(.caption)
+                    .lineLimit(2)
+            }
+            Spacer()
+            CopyButton(prompt: prompt)
+        }
+    }
+}
+```
+
+#### 性能优化
+- 使用 `LazyVStack` 处理大量数据
+- 避免在 body 中进行复杂计算
+- 合理使用 `@State` 和 `@Query`
+
+## 错误处理
+
+### SwiftData 错误处理
+```swift
+do {
+    try modelContext.save()
+} catch {
+    print("保存数据失败: \(error.localizedDescription)")
+    // 用户友好的错误提示
+}
+```
+
+### 用户体验错误处理
+- 优雅的错误提示
+- 非阻塞式错误处理
+- 提供重试机制
+
+## 注释和文档
+
+### 代码注释标准
+```swift
+/// 创建新的 Prompt 并保存到数据库
+/// - Parameters:
+///   - title: Prompt 标题
+///   - content: Prompt 内容
+///   - tags: 关联的标签数组
+/// - Returns: 创建的 Prompt 实例
+func createPrompt(title: String, content: String, tags: [Tag] = []) -> Prompt {
+    // 实现代码
+}
+```
+
+### 功能注释
+- 复杂业务逻辑必须添加注释
+- 正则表达式需要说明用途
+- 性能关键代码需要标注
+
+## 测试标准
+
+### 单元测试
+- 数据模型测试
+- 业务逻辑测试
+- 工具函数测试
+
+### UI 测试
+- 关键用户流程测试
+- 辅助功能测试
+- 多设备适配测试
+
+## 代码审查清单
+
+### 功能性
+- [ ] 功能按需求正确实现
+- [ ] 错误处理完善
+- [ ] 性能表现符合要求
+
+### 代码质量
+- [ ] 代码风格一致
+- [ ] 命名清晰有意义
+- [ ] 注释充分且准确
+
+### 架构
+- [ ] 遵循 MVVM 模式
+- [ ] 职责分离清晰
+- [ ] 依赖关系合理
+
+### 用户体验
+- [ ] 界面响应流畅
+- [ ] 错误提示友好
+- [ ] 支持辅助功能

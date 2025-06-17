@@ -1,0 +1,71 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# macOS 菜单栏应用开发规范
+
+## 应用配置
+
+### Info.plist 设置
+- 添加 `Application is agent (UIElement)` 并设置为 `YES`
+- 这将使应用成为没有 Dock 图标的后台应用
+
+### 菜单栏集成
+
+#### NSStatusItem 实现
+```swift
+let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+```
+
+#### 核心功能
+1. **菜单栏图标**: 应用的主要入口点
+2. **全局热键**: 支持自定义快捷键激活
+3. **窗口管理**: 显示/隐藏主窗口的逻辑
+
+### 全局热键实现
+
+#### 权限要求
+- 需要 macOS 辅助功能权限
+- 引导用户在"系统设置 -> 隐私与安全性 -> 辅助功能"中授权
+
+#### 实现方式
+```swift
+NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { event in
+    // 检查按键组合是否匹配用户设置的热键
+}
+```
+
+## 窗口管理最佳实践
+
+### 主窗口特性
+- 使用 SwiftUI 的 WindowGroup
+- 获取底层 NSWindow 进行操作
+- 支持居中显示、快速显示/隐藏
+
+### 用户体验原则
+1. **召之即来**: 通过热键快速激活
+2. **用完即走**: 操作完成后自动隐藏
+3. **无缝集成**: 与 macOS 系统深度融合
+
+## 性能要求
+
+### 响应时间
+- 应用启动: 毫秒级响应
+- 热键激活: 极快的窗口显示
+- 搜索功能: 即使在 1000+ Prompt 时保持流畅
+
+### 内存优化
+- 后台运行时最小化内存占用
+- 合理管理窗口状态和数据缓存
+
+## 系统集成
+
+### 剪贴板操作
+- 使用 `NSPasteboard` 进行复制操作
+- 支持一键复制 Prompt 内容
+
+### 权限管理
+- 辅助功能权限 (全局热键需要)
+- 文件系统访问权限 (本地数据存储)
+- iCloud 权限 (数据同步)
