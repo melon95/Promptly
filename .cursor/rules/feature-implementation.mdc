@@ -1,0 +1,115 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 功能实现指南
+
+## 功能优先级
+
+根据 [product-requirement.md](mdc:docs/product-requirement.md) 定义的优先级：
+
+### P0 - 核心功能 (MVP)
+
+#### 1. Prompt 创建与编辑
+- ✅ 标题 (Title) 字段
+- ✅ 内容 (Content) 输入区  
+- ✅ 自动保存功能
+- ✅ SwiftData 数据持久化
+
+#### 2. Prompt 列表与搜索
+```swift
+@Query(sort: \Prompt.createdAt, order: .reverse) private var prompts: [Prompt]
+@State private var searchText = ""
+
+var filteredPrompts: [Prompt] {
+    if searchText.isEmpty {
+        return prompts
+    } else {
+        return prompts.filter {
+            $0.title.localizedCaseInsensitiveContains(searchText) ||
+            $0.content.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+}
+```
+
+#### 3. 标签系统
+- 多对多关系：Prompt ↔ Tag
+- 标签筛选功能
+- 标签管理界面
+
+#### 4. 快速访问
+- 菜单栏图标集成
+- 全局热键 (默认: Option + P)
+- 一键复制到剪贴板
+
+#### 5. 本地数据存储
+- SwiftData 本地存储
+- 数据隐私保护
+
+### P1 - 重要功能 (V1.1 - V1.5)
+
+#### 1. 参数化 Prompts
+```swift
+// 占位符格式: {{variable_name}}
+let regex = try! NSRegularExpression(pattern: "\\{\\{(.+?)\\}\\}")
+```
+- 解析占位符
+- 动态生成输入表单
+- 变量替换和复制
+
+#### 2. 收藏夹功能
+- `isFavorite` 布尔字段
+- 收藏夹专用视图
+- 快速访问常用 Prompts
+
+#### 3. iCloud 同步
+```swift
+let cloudConfiguration = ModelConfiguration(
+    "CloudStore", 
+    schema: schema, 
+    cloudKitDatabase: .private("iCloud.com.yourcompany.PromptPal")
+)
+```
+
+#### 4. 富文本支持
+- Markdown 语法支持
+- 代码块语法高亮
+- 改善可读性
+
+### P2 - 未来迭代 (V2.0+)
+
+#### 1. 版本历史
+- Prompt 修改历史记录
+- 版本比较和恢复
+
+#### 2. Prompt 分享
+- 导出/导入功能
+- 链接分享机制
+
+#### 3. 使用统计
+- 使用频率分析
+- `lastUsedAt` 字段追踪
+- 智能排序推荐
+
+#### 4. 社区库 (可选)
+- 社区 Prompt 发现
+- 匿名/实名分享平台
+
+## 实现注意事项
+
+### 性能优化
+- 搜索功能优化 (支持 1000+ Prompts)
+- 视图懒加载
+- 内存管理
+
+### 用户体验
+- 遵循 Apple HIG
+- 支持浅色/深色模式
+- 无学习成本的直观界面
+
+### 安全性
+- 本地优先的数据存储
+- iCloud 加密同步
+- 用户数据完全归属用户

@@ -1,0 +1,47 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# PromptPal 项目概览
+
+PromptPal 是一个专为 macOS 设计的原生应用程序，用于管理和组织 AI Prompts。
+
+## 项目核心信息
+
+- **技术栈**: Swift 5.9+, SwiftUI, SwiftData
+- **架构模式**: MVVM (Model-View-ViewModel)
+- **数据持久化**: SwiftData with iCloud sync
+- **应用类型**: 菜单栏应用 (Menu Bar App)
+- **目标平台**: macOS (Mac App Store)
+
+## 核心功能
+
+1. **Prompt 管理**: 创建、编辑、搜索和组织 Prompts
+2. **标签系统**: 通过标签对 Prompts 进行分类
+3. **全局热键**: 通过快捷键快速访问应用
+4. **参数化 Prompts**: 支持占位符 `{{variable_name}}` 功能
+5. **iCloud 同步**: 跨设备数据同步
+6. **快速复制**: 一键复制 Prompt 到剪贴板
+
+## 关键文档
+
+- 产品需求文档: [product-requirement.md](mdc:docs/product-requirement.md)
+- 技术实现文档: [technical-implementation.md](mdc:docs/technical-implementation.md)
+- 主应用入口: [PromptPalApp.swift](mdc:PromptPal/PromptPalApp.swift)
+- 主界面视图: [ContentView.swift](mdc:PromptPal/ContentView.swift)
+- 本地化管理器: [LocalizationManager.swift](mdc:PromptPal/Utilities/LocalizationManager.swift)
+
+## 国际化支持
+
+- **支持语言**: 英语 (en)、简体中文 (zh-Hans)
+- **本地化文件**: [PromptPal/Resources/*.lproj/](mdc:PromptPal/Resources)
+- **国际化规范**: 参考 internationalization-guidelines.mdc
+- **验证脚本**: [scripts/validate_localization.py](mdc:scripts/validate_localization.py)
+
+## 开发原则
+
+- 遵循 Apple Human Interface Guidelines
+- 保持简洁直观的用户体验
+- 确保快速响应和高性能
+- 支持 macOS 浅色和深色模式

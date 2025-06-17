@@ -1,0 +1,110 @@
+name: Build Signed macOS App
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+env:
+  XCODE_VERSION: "15.2"
+  SCHEME_NAME: "PromptPal"
+  PRODUCT_NAME: "PromptPal"
+  TEAM_ID: ${{ secrets.TEAM_ID }}
+
+jobs:
+  build-signed:
+    runs-on: macos-14
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Import Code-Signing Certificates
+      uses: Apple-Actions/import-codesign-certs@v2
+      with:
+        p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
+        p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
+        
+    - name: Install the provisioning profile
+      env:
+        PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE }}
+      run: |
+        PP_PATH=$RUNNER_TEMP/build_pp.provisionprofile
+        echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode --output $PP_PATH
+        mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+        cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+        
+    - name: Select Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
+      
+    - name: Build Archive
+      run: |
+        xcodebuild \
+          -scheme ${{ env.SCHEME_NAME }} \
+          -destination 'platform=macOS' \
+          -configuration Release \
+          -archivePath ${{ env.PRODUCT_NAME }}.xcarchive \
+          CODE_SIGN_IDENTITY="Developer ID Application" \
+          DEVELOPMENT_TEAM=${{ env.TEAM_ID }} \
+          archive
+          
+    - name: Export for Distribution
+      run: |
+        xcodebuild \
+          -exportArchive \
+          -archivePath ${{ env.PRODUCT_NAME }}.xcarchive \
+          -exportPath ./build \
+          -exportOptionsPlist ExportOptions.plist
+          
+    - name: Notarize app
+      env:
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+      run: |
+        # 创建公证用的zip文件
+        cd build
+        ditto -c -k --keepParent "${{ env.PRODUCT_NAME }}.app" "${{ env.PRODUCT_NAME }}.zip"
+        
+        # 提交公证
+        xcrun notarytool submit "${{ env.PRODUCT_NAME }}.zip" \
+          --apple-id "$APPLE_ID" \
+          --password "$APPLE_ID_PASSWORD" \
+          --team-id ${{ env.TEAM_ID }} \
+          --wait
+          
+        # 装订票据到app
+        xcrun stapler staple "${{ env.PRODUCT_NAME }}.app"
+        
+    - name: Create DMG
+      run: |
+        mkdir -p dmg_temp
+        cp -R "./build/${{ env.PRODUCT_NAME }}.app" dmg_temp/
+        
+        # 创建应用程序快捷方式
+        ln -s /Applications dmg_temp/Applications
+        
+        hdiutil create -volname "${{ env.PRODUCT_NAME }}" \
+          -srcfolder dmg_temp \
+          -ov -format UDZO \
+          ${{ env.PRODUCT_NAME }}-signed.dmg
+        
+    - name: Create Release (if not exists)
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Release ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+      continue-on-error: true
+        
+    - name: Upload Signed DMG to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./${{ env.PRODUCT_NAME }}-signed.dmg
+        asset_name: ${{ env.PRODUCT_NAME }}-signed.dmg
+        asset_content_type: application/octet-stream 

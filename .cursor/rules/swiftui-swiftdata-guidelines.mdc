@@ -1,0 +1,79 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# SwiftUI & SwiftData 开发规范
+
+## SwiftData 数据模型规范
+
+### 核心模型结构
+
+根据 [technical-implementation.md](mdc:docs/technical-implementation.md)，项目包含两个核心数据模型：
+
+#### Prompt 模型
+```swift
+@Model
+final class Prompt {
+    @Attribute(.unique) var id: UUID
+    var title: String
+    var content: String
+    var createdAt: Date
+    var lastUsedAt: Date
+    var isFavorite: Bool
+    
+    @Relationship(inverse: \Tag.prompts)
+    var tags: [Tag]?
+}
+```
+
+#### Tag 模型
+```swift
+@Model
+final class Tag {
+    @Attribute(.unique) var id: UUID
+    var name: String
+    
+    var prompts: [Prompt]?
+}
+```
+
+### SwiftData 最佳实践
+
+1. **模型属性**: 使用 `@Attribute(.unique)` 为 ID 字段确保唯一性
+2. **关系定义**: 使用 `@Relationship(inverse:)` 建立双向关系
+3. **查询操作**: 在 SwiftUI 视图中使用 `@Query` 进行数据查询
+4. **容器配置**: 在 App 级别配置 ModelContainer 并启用 CloudKit
+
+## SwiftUI 架构规范
+
+### MVVM 模式实施
+
+1. **View (视图)**:
+   - 纯 SwiftUI 声明式界面
+   - 不包含业务逻辑
+   - 通过 `@Query` 直接访问 SwiftData
+   - 使用 `@State` 管理本地 UI 状态
+
+2. **ViewModel**:
+   - 使用 `@Observable` 宏标记
+   - 处理视图逻辑和用户交互
+   - 充当 View 和 Model 的桥梁
+
+3. **Model**:
+   - SwiftData 模型负责数据持久化
+   - 包含业务逻辑和数据验证
+
+### UI 组件规范
+
+1. **响应式设计**: 充分利用 SwiftUI 的响应式特性
+2. **状态管理**: 合理使用 `@State`, `@StateObject`, `@ObservedObject`
+3. **数据绑定**: 使用 `@Query` 进行数据查询和绑定
+4. **性能优化**: 避免不必要的视图重绘
+
+### 命名约定
+
+- SwiftData 模型: PascalCase (如 `Prompt`, `Tag`)
+- SwiftUI 视图: PascalCase + "View" 后缀 (如 `PromptListView`)
+- 属性和方法: camelCase
+- 常量: UPPER_SNAKE_CASE
