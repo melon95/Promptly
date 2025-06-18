@@ -3,12 +3,13 @@ name: Build, Release and Upload PromptPal DMG
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*'
 
 jobs:
+  # --- 第一个 Job：构建 ---
   build:
     name: Build DMG on macOS
-    runs-on: macos-latest
+    runs-on: macos-latest # GitHub Actions will use an image with a specific macOS and Xcode version
 
     steps:
       - name: Checkout code
@@ -17,7 +18,14 @@ jobs:
       - name: Select Xcode version
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 'latest-stable'
+          xcode-version: '16.4' # Be specific to match your local setup
+
+      # ‼️ 新增的步骤：在构建前导入证书
+      - name: Import Code-Signing Certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
+          p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
 
       - name: Build and Archive App
         run: |
@@ -34,6 +42,7 @@ jobs:
             -exportPath ./build \
             -exportOptionsPlist ./ExportOptions.plist
 
+      # ... 后续 create-dmg 和 upload-artifact 步骤保持不变 ...
       - name: Install create-dmg
         run: brew install create-dmg
 
@@ -51,32 +60,27 @@ jobs:
             "build/PromptPal.app"
 
       - name: Upload DMG Artifact
-        # 将 DMG 文件作为 "artifact" 上传，以便在 Job 之间传递
         uses: actions/upload-artifact@v4
         with:
-          name: promptpal-dmg-artifact # Artifact 的名称
-          path: PromptPal.dmg # 要上传的文件路径
+          name: promptpal-dmg-artifact
+          path: PromptPal.dmg
 
+  # --- 第二个 Job：发布 ---
   release:
     name: Create GitHub Release
-    # 依赖于 build Job 的成功完成
     needs: build
-    # 可以在更经济的 Ubuntu 运行器上执行
     runs-on: ubuntu-latest
-
+    # ... release job 保持不变 ...
     steps:
       - name: Download DMG Artifact
-        # 从之前的 Job 下载 artifact
         uses: actions/download-artifact@v4
         with:
-          name: promptpal-dmg-artifact # 必须与 upload-artifact 的 name 匹配
-          # 下载后文件会存放在当前目录
+          name: promptpal-dmg-artifact
 
       - name: Create Release and Upload DMG
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # 要上传的文件
           files: PromptPal.dmg
           name: Release ${{ github.ref_name }}
           body: |
