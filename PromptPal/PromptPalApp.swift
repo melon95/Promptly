@@ -46,5 +46,6 @@ struct PromptPalApp: App {
 struct AppCommands: Commands {
     var body: some Commands {
         // 使用默认的设置菜单项，它会自动调用 Settings 场景
+        EmptyCommands()
     }
 }
