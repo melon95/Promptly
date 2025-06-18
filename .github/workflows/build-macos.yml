@@ -3,7 +3,6 @@ name: Build macOS App
 on:
   push:
     branches: [ main, develop ]
-    tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
 
@@ -56,60 +55,10 @@ jobs:
           -configuration Debug \
           test-without-building
           
-    - name: Build Release
-      if: startsWith(github.ref, 'refs/tags/')
+    - name: Build Release (validation only)
       run: |
         xcodebuild \
           -scheme ${{ env.SCHEME_NAME }} \
           -destination 'platform=macOS' \
           -configuration Release \
-          -archivePath ${{ env.PRODUCT_NAME }}.xcarchive \
-          archive
-          
-    - name: Export Archive
-      if: startsWith(github.ref, 'refs/tags/')
-      run: |
-        xcodebuild \
-          -exportArchive \
-          -archivePath ${{ env.PRODUCT_NAME }}.xcarchive \
-          -exportPath ./build \
-          -exportOptionsPlist ExportOptions.plist
-          
-    - name: Create DMG
-      if: startsWith(github.ref, 'refs/tags/')
-      run: |
-        mkdir -p dmg_temp
-        cp -R "./build/${{ env.PRODUCT_NAME }}.app" dmg_temp/
-        hdiutil create -volname "${{ env.PRODUCT_NAME }}" -srcfolder dmg_temp -ov -format UDZO ${{ env.PRODUCT_NAME }}.dmg
-        
-    - name: Create Release
-      if: startsWith(github.ref, 'refs/tags/')
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref_name }}
-        release_name: Release ${{ github.ref_name }}
-        draft: false
-        prerelease: false
-        
-    - name: Upload DMG to Release
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./${{ env.PRODUCT_NAME }}.dmg
-        asset_name: ${{ env.PRODUCT_NAME }}.dmg
-        asset_content_type: application/octet-stream
-        
-    - name: Upload build artifacts
-      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ env.PRODUCT_NAME }}-${{ github.sha }}
-        path: |
-          ${{ env.PRODUCT_NAME }}.xcarchive
-        retention-days: 7 
+          build 
