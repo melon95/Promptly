@@ -18,7 +18,7 @@ jobs:
       - name: Select Xcode version
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.4' # Be specific to match your local setup
+          xcode-version: '16.2' # Be specific to match your local setup
 
       # ‼️ 新增的步骤：在构建前导入证书
       - name: Import Code-Signing Certificate
