@@ -6,7 +6,7 @@ on:
       - 'v*.*.*'
 
 jobs:
-  # --- 第一个 Job：构建 ---
+
   build:
     name: Build DMG on macOS
     runs-on: macos-latest # GitHub Actions will use an image with a specific macOS and Xcode version
@@ -65,13 +65,18 @@ jobs:
           name: promptpal-dmg-artifact
           path: PromptPal.dmg
 
-  # --- 第二个 Job：发布 ---
+
   release:
     name: Create GitHub Release
     needs: build
     runs-on: ubuntu-latest
-    # ... release job 保持不变 ...
+    permissions:
+      contents: write
+
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Download DMG Artifact
         uses: actions/download-artifact@v4
         with:
