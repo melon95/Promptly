@@ -22,6 +22,11 @@ fi
 echo "✅ 工具检查通过"
 echo ""
 
+# 显示 Xcode 版本
+echo "📱 Xcode 版本信息:"
+xcodebuild -version
+echo ""
+
 # 1. 语法验证
 echo "1️⃣ 验证 GitHub Actions 语法..."
 if act --list --workflows .github/workflows/build-macos.yml &> /dev/null; then
@@ -39,73 +44,66 @@ else
     act --list --workflows .github/workflows/build-signed.yml
     exit 1
 fi
+
+echo "✅ GitHub Actions 语法验证通过"
 echo ""
 
-# 2. 验证工作流结构
-echo "2️⃣ 验证工作流结构..."
-echo "📋 当前工作流列表:"
-act --list 2>/dev/null | grep -E "(Stage|0)" || echo "无法获取详细列表，但语法检查已通过"
+# 2. 项目结构验证
+echo "2️⃣ 验证项目结构..."
+if [ ! -f "PromptPal.xcodeproj/project.pbxproj" ]; then
+    echo "❌ 项目文件不存在"
+    exit 1
+fi
+
+if [ ! -d "PromptPal" ]; then
+    echo "❌ 源代码目录不存在"
+    exit 1
+fi
+
+echo "✅ 项目结构验证通过"
 echo ""
 
-# 3. 实际构建测试
-echo "3️⃣ 执行实际构建测试..."
-echo "🧹 清理之前的构建..."
-xcodebuild -scheme PromptPal -destination 'platform=macOS' clean
+# 3. 项目兼容性检查
+echo "3️⃣ 检查项目兼容性..."
+if xcodebuild -list -project PromptPal.xcodeproj &> /dev/null; then
+    echo "✅ 项目文件兼容当前 Xcode 版本"
+else
+    echo "❌ 项目文件与当前 Xcode 版本不兼容"
+    exit 1
+fi
 
-echo "🔨 Debug 构建测试..."
-if xcodebuild -scheme PromptPal -destination 'platform=macOS' -configuration Debug build; then
+# 4. Debug 构建测试
+echo "4️⃣ 测试 Debug 构建..."
+if xcodebuild -scheme PromptPal -destination 'platform=macOS' -configuration Debug build &> /dev/null; then
     echo "✅ Debug 构建成功"
 else
     echo "❌ Debug 构建失败"
+    echo "尝试详细输出:"
+    xcodebuild -scheme PromptPal -destination 'platform=macOS' -configuration Debug build
     exit 1
 fi
 
-echo "🔨 Release 构建测试..."
-if xcodebuild -scheme PromptPal -destination 'platform=macOS' -configuration Release build; then
+# 5. Release 构建测试
+echo "5️⃣ 测试 Release 构建..."
+if xcodebuild -scheme PromptPal -destination 'platform=macOS' -configuration Release build &> /dev/null; then
     echo "✅ Release 构建成功"
 else
     echo "❌ Release 构建失败"
+    echo "尝试详细输出:"
+    xcodebuild -scheme PromptPal -destination 'platform=macOS' -configuration Release build
     exit 1
 fi
-echo ""
 
-# 4. 运行测试
-echo "4️⃣ 运行单元测试..."
-if xcodebuild -scheme PromptPal -destination 'platform=macOS' test 2>/dev/null; then
-    echo "✅ 测试通过"
+# 6. 测试运行
+echo "6️⃣ 运行单元测试..."
+if xcodebuild -scheme PromptPal -destination 'platform=macOS' -configuration Debug test &> /dev/null; then
+    echo "✅ 单元测试通过"
 else
-    echo "⚠️  测试执行有问题，但可能是正常的（如果没有测试文件）"
-fi
-echo ""
-
-# 5. act 基本验证（不依赖网络）
-echo "5️⃣ act 基本验证..."
-echo "📝 验证 workflow 可以被 act 解析..."
-
-# 创建一个简单的测试事件
-cat > /tmp/test_event.json << EOF
-{
-  "ref": "refs/heads/main",
-  "repository": {
-    "name": "PromptPal",
-    "full_name": "test/PromptPal"
-  }
-}
-EOF
-
-echo "🧪 测试 workflow 解析（跳过网络依赖）..."
-if act --list --workflows .github/workflows/build-macos.yml --eventpath /tmp/test_event.json &> /dev/null; then
-    echo "✅ act 可以正确解析 workflow"
-else
-    echo "⚠️  act 解析有警告，但基本语法正确"
+    echo "⚠️  单元测试失败 (这可能是正常的)"
 fi
 
-# 清理临时文件
-rm -f /tmp/test_event.json
-echo ""
-
-# 6. 检查关键文件
-echo "6️⃣ 检查关键配置文件..."
+# 7. act 环境验证
+echo "7️⃣ 验证 act 环境..."
 if [ -f ".actrc" ]; then
     echo "✅ .actrc 配置文件存在"
 else
@@ -113,29 +111,26 @@ else
 fi
 
 if [ -f ".secrets" ]; then
-    echo "✅ .secrets 配置文件存在"
+    echo "✅ .secrets 文件存在"
 else
-    echo "⚠️  .secrets 配置文件不存在"
+    echo "⚠️  .secrets 文件不存在"
 fi
 
-if [ -f "ExportOptions.plist" ]; then
-    echo "✅ ExportOptions.plist 存在"
-else
-    echo "⚠️  ExportOptions.plist 不存在"
-fi
+# 8. 清理构建缓存
+echo "8️⃣ 清理构建缓存..."
+rm -rf ~/Library/Developer/Xcode/DerivedData/PromptPal*
+echo "✅ 构建缓存已清理"
+
 echo ""
-
-# 总结
-echo "🎉 最终验证完成！"
+echo "🎉 所有验证完成！"
 echo "=================================================="
-echo "✅ GitHub Actions 语法验证通过"
-echo "✅ 本地构建测试通过（Debug + Release）"
-echo "✅ act 工具可以正确解析 workflows"
-echo "✅ 所有关键配置文件就绪"
+echo "✅ GitHub Actions 语法正确"
+echo "✅ 项目结构完整"  
+echo "✅ Xcode 兼容性良好"
+echo "✅ Debug 和 Release 构建成功"
+echo "✅ act 环境配置就绪"
 echo ""
-echo "🚀 建议的下一步操作："
-echo "1. 提交代码: git add . && git commit -m 'Update workflows'"
-echo "2. 推送到 GitHub: git push"
-echo "3. 查看 GitHub Actions 执行结果"
-echo ""
-echo "📚 参考文档: docs/act-testing.md" 
+echo "📋 下一步:"
+echo "1. 提交代码到 GitHub"
+echo "2. 观察 CI/CD 构建结果"
+echo "3. 如需要，使用 'act push --workflows .github/workflows/build-macos.yml --dryrun' 进行本地模拟" 

@@ -5,14 +5,14 @@ on:
     tags: [ 'v*' ]
 
 env:
-  XCODE_VERSION: "15.2"
+  XCODE_VERSION: "16.0"
   SCHEME_NAME: "PromptPal"
   PRODUCT_NAME: "PromptPal"
   TEAM_ID: ${{ secrets.TEAM_ID }}
 
 jobs:
   build-signed:
-    runs-on: macos-14
+    runs-on: macos-15
     
     steps:
     - name: Checkout repository
