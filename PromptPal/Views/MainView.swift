@@ -81,15 +81,8 @@ struct MainView: View {
     /// 左侧边栏
     private var sidebar: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // 标题
+            // All Prompts 和 Favorites
             VStack(alignment: .leading, spacing: 16) {
-                Text("PromptPal")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                    .padding(.top, 20)
-                
-                // All Prompts 和 Favorites
                 VStack(spacing: 8) {
                     NavigationButton(
                         title: "All Prompts".localized,
@@ -114,6 +107,7 @@ struct MainView: View {
                 }
             }
             .padding(.horizontal, 8)
+            .padding(.top, 20)
             
             Divider()
                 .padding(.vertical, 20)
@@ -261,8 +255,16 @@ struct NavigationButton: View {
                     .background(isSelected ? Color.white.opacity(0.2) : Color.secondary.opacity(0.2))
                     .cornerRadius(4)
             }
+            .contentShape(Rectangle())
         }
         .buttonStyle(NavigationButtonStyle(isSelected: isSelected))
+        .onHover { isHovering in
+            if isHovering {
+                NSCursor.pointingHand.push()
+            } else {
+                NSCursor.pop()
+            }
+        }
     }
 }
 
@@ -289,8 +291,16 @@ struct CategoryRow: View {
                     .font(.caption)
                     .foregroundColor(isSelected ? .blue : .secondary)
             }
+            .contentShape(Rectangle())
         }
         .buttonStyle(CategoryButtonStyle(isSelected: isSelected))
+        .onHover { isHovering in
+            if isHovering {
+                NSCursor.pointingHand.push()
+            } else {
+                NSCursor.pop()
+            }
+        }
     }
     
     private func colorForCategory(_ colorName: String) -> Color {

@@ -26,7 +26,7 @@ struct PromptPalApp: App {
     
     var body: some Scene {
         // 主窗口
-        WindowGroup("main-window") {
+        WindowGroup("PromptPal") {
             ContentView()
         }
         .windowResizability(.contentSize)
