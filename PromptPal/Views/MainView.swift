@@ -49,8 +49,8 @@ struct MainView: View {
             }
         }
         
-        // 按更新时间排序
-        return filtered.sorted { $0.updatedAt > $1.updatedAt }
+        // 按创建时间排序
+        return filtered.sorted { $0.createdAt > $1.createdAt }
     }
     
     // prompt count for each category

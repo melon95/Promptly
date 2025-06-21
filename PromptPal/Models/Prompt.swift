@@ -60,8 +60,9 @@ final class Prompt {
         self.category = category
         self.tags = tags
         self.isFavorite = isFavorite
-        self.createdAt = Date()
-        self.updatedAt = Date()
+        let now = Date()
+        self.createdAt = now
+        self.updatedAt = now
         self.usageCount = 0
     }
 }
