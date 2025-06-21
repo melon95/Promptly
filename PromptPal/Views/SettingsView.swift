@@ -69,8 +69,6 @@ struct AdvancedSettingsTab: View {
             // about information
             Divider()
             AboutRow()
-            
-            Spacer()
         }
         .formStyle(.grouped)
         .padding(.top)
