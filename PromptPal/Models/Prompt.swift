@@ -8,44 +8,48 @@
 import Foundation
 import SwiftData
 
-/// Prompt 数据模型
+// Import the LocalizationManager for the .localized extension
+// Since LocalizationManager defines the String extension in the same module,
+// we just need to ensure it's available at runtime.
+
+// Prompt data model
 @Model
 final class Prompt {
-    /// 唯一标识符
+    // unique identifier
     var id: UUID
     
-    /// 标题
+    // title
     var title: String
     
-    /// 描述
+    // description
     var promptDescription: String
     
-    /// 用户提示词内容
+    // user prompt content
     var userPrompt: String
     
-    /// 分类
-    var category: PromptCategory
+    // category - now references custom Category
+    var category: Category?
     
-    /// 标签
+    // tags
     var tags: [String]
     
-    /// 是否收藏
+    // is favorite
     var isFavorite: Bool
     
-    /// 创建时间
+    // created time
     var createdAt: Date
     
-    /// 更新时间
+    // updated time
     var updatedAt: Date
     
-    /// 使用次数
+    // usage count
     var usageCount: Int
     
     init(
         title: String,
         description: String,
         userPrompt: String,
-        category: PromptCategory = .other,
+        category: Category? = nil,
         tags: [String] = [],
         isFavorite: Bool = false
     ) {
@@ -62,66 +66,22 @@ final class Prompt {
     }
 }
 
-/// Prompt 分类枚举
-enum PromptCategory: String, CaseIterable, Codable {
-    case writing = "Writing"
-    case code = "Code"
-    case marketing = "Marketing"
-    case creative = "Creative"
-    case business = "Business"
-    case other = "Other"
+// Category data model - now the only category system
+@Model
+final class Category: Identifiable {
+    var id: UUID
+    var name: String
+    var color: String
+    var iconName: String
+    var isDefault: Bool
+    var createdAt: Date
     
-    /// 显示名称
-    var displayName: String {
-        switch self {
-        case .writing:
-            return "Writing".localized
-        case .code:
-            return "Code".localized
-        case .marketing:
-            return "Marketing".localized
-        case .creative:
-            return "Creative".localized
-        case .business:
-            return "Business".localized
-        case .other:
-            return "Other".localized
-        }
-    }
-    
-    /// 分类图标
-    var iconName: String {
-        switch self {
-        case .writing:
-            return "pencil"
-        case .code:
-            return "chevron.left.forwardslash.chevron.right"
-        case .marketing:
-            return "megaphone"
-        case .creative:
-            return "paintbrush"
-        case .business:
-            return "briefcase"
-        case .other:
-            return "folder"
-        }
-    }
-    
-    /// 分类颜色
-    var color: String {
-        switch self {
-        case .writing:
-            return "blue"
-        case .code:
-            return "green"
-        case .marketing:
-            return "orange"
-        case .creative:
-            return "pink"
-        case .business:
-            return "red"
-        case .other:
-            return "gray"
-        }
+    init(name: String, color: String = "blue", iconName: String = "folder", isDefault: Bool = false) {
+        self.id = UUID()
+        self.name = name
+        self.color = color
+        self.iconName = iconName
+        self.isDefault = isDefault
+        self.createdAt = Date()
     }
 } 

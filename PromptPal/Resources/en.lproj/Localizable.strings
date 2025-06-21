@@ -144,6 +144,49 @@
 "Cancel" = "Cancel";
 "Save" = "Save";
 
+// MARK: - 快捷键设置
+"Customize" = "Customize";
+"Customize keyboard shortcuts" = "Customize keyboard shortcuts";
+"Quick Access" = "Quick Access";
+"New Prompt" = "New Prompt";
+"Keyboard Shortcuts" = "Keyboard Shortcuts";
+"Click on a shortcut to customize it. Press Escape to cancel editing." = "Click on a shortcut to customize it. Press Escape to cancel editing.";
+"Reset to Defaults" = "Reset to Defaults";
+"settings.hotkey.quick_access" = "Quick Access";
+"settings.hotkey.new_prompt" = "New Prompt";
+"settings.hotkey.focus_search" = "Focus Search";
+"settings.hotkey.show_favorites" = "Show Favorites";
+"settings.hotkey.quick_access.description" = "Open quick access window";
+"settings.hotkey.new_prompt.description" = "Create a new prompt";
+"settings.hotkey.focus_search.description" = "Focus on search field";
+"settings.hotkey.show_favorites.description" = "Show favorite prompts";
+
+// MARK: - 菜单快捷键
+"New Prompt" = "New Prompt";
+"Toggle Quick Access" = "Toggle Quick Access";
+"Focus Search" = "Focus Search";
+"Show Favorites" = "Show Favorites";
+
+
+// MARK: - 分类管理
+"Category Name" = "Category Name";
+"Enter category name..." = "Enter category name...";
+"Color" = "Color";
+"Icon" = "Icon";
+"Edit Category" = "Edit Category";
+"Delete Category" = "Delete Category";
+"Are you sure you want to delete the category \"%@\"?" = "Are you sure you want to delete the category \"%@\"?";
+"Cannot Delete Category" = "Cannot Delete Category";
+"Cannot delete category \"%@\" because it contains prompts. Please move or delete the prompts first." = "Cannot delete category \"%@\" because it contains prompts. Please move or delete the prompts first.";
+"OK" = "OK";
+"Edit" = "Edit";
+
+// MARK: - 语言切换
+"language.changed.title" = "Language Changed";
+"language.changed.message" = "Please restart the app to apply the new language settings.";
+"language.changed.restart" = "Restart App";
+"language.changed.later" = "Later";
+
 // MARK: - 其他
 "language.english" = "English";
 "language.chinese" = "简体中文";

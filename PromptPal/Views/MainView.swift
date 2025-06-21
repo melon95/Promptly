@@ -8,23 +8,31 @@
 import SwiftUI
 import SwiftData
 
-/// 主界面视图
+// main view
 struct MainView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var prompts: [Prompt]
+    @Query private var categories: [Category]
     
-    @State private var selectedCategory: PromptCategory? = nil
+    @State private var selectedCategory: Category? = nil
     @State private var searchText = ""
     @State private var showingAddPrompt = false
     @State private var showingOnlyFavorites = false
+    @State private var showingAddCategory = false
+    @State private var editingCategory: Category? = nil
+    @State private var showingDeleteAlert = false
+    @State private var showingCannotDeleteAlert = false
+    @State private var categoryToDelete: Category? = nil
+    @State private var categoryCannotDelete: Category? = nil
+    @FocusState private var isSearchFocused: Bool
     
-    /// 过滤后的 Prompts
+    // filtered prompts
     private var filteredPrompts: [Prompt] {
         var filtered = prompts
         
         // 按分类筛选
         if let category = selectedCategory {
-            filtered = filtered.filter { $0.category == category }
+            filtered = filtered.filter { $0.category?.id == category.id }
         }
         
         // 只显示收藏
@@ -45,18 +53,18 @@ struct MainView: View {
         return filtered.sorted { $0.updatedAt > $1.updatedAt }
     }
     
-    /// 各分类的Prompt数量
-    private func promptCount(for category: PromptCategory) -> Int {
-        prompts.filter { $0.category == category }.count
+    // prompt count for each category
+    private func promptCount(for category: Category) -> Int {
+        prompts.filter { $0.category?.id == category.id }.count
     }
     
     var body: some View {
         HSplitView {
-            // 左侧边栏
+            // left sidebar
             sidebar
                 .frame(minWidth: 250, maxWidth: 350)
             
-            // 右侧主内容区
+            // right main content
             mainContent
                 .frame(minWidth: 500)
         }
@@ -65,20 +73,60 @@ struct MainView: View {
                 Button {
                     showingAddPrompt = true
                 } label: {
-                    Label("New Prompt", systemImage: "plus")
+                    Label("New Prompt".localized, systemImage: "plus")
+                }
+                .onHover { hovering in
+                    if hovering {
+                        NSCursor.pointingHand.push()
+                    } else {
+                        NSCursor.pop()
+                    }
                 }
             }
         }
         .sheet(isPresented: $showingAddPrompt) {
             AddPromptView()
         }
+        .sheet(isPresented: $showingAddCategory) {
+            AddCategoryView()
+        }
+        .sheet(item: $editingCategory) { category in
+            EditCategoryView(category: category)
+        }
+        .alert("Delete Category".localized, isPresented: $showingDeleteAlert) {
+            Button("Cancel".localized, role: .cancel) { }
+            Button("Delete".localized, role: .destructive) {
+                if let category = categoryToDelete {
+                    deleteCategory(category)
+                }
+            }
+        } message: {
+            if let category = categoryToDelete {
+                Text("Are you sure you want to delete the category \"%@\"?".localized(with: category.name))
+            }
+        }
+        .alert("Cannot Delete Category".localized, isPresented: $showingCannotDeleteAlert) {
+            Button("OK".localized, role: .cancel) { }
+        } message: {
+            if let category = categoryCannotDelete {
+                Text("Cannot delete category \"%@\" because it contains prompts. Please move or delete the prompts first.".localized(with: category.name))
+            }
+        }
         .onAppear {
-            // 首次启动时创建示例数据
+            // create default categories first, then sample data
+            SampleData.createDefaultCategories(in: modelContext)
             SampleData.createSamplePrompts(in: modelContext)
+            
+            // set keyboard shortcuts
+            setupKeyboardShortcuts()
+        }
+        .onDisappear {
+            // clean up notification listeners
+            NotificationCenter.default.removeObserver(self)
         }
     }
     
-    /// 左侧边栏
+    // left sidebar
     private var sidebar: some View {
         VStack(alignment: .leading, spacing: 0) {
             // All Prompts 和 Favorites
@@ -120,11 +168,25 @@ struct MainView: View {
                     .padding(.horizontal, 8)
                 
                 LazyVStack(spacing: 4) {
-                    ForEach(PromptCategory.allCases, id: \.self) { category in
+                    // 所有分类（不再区分固定和自定义）
+                    ForEach(categories.sorted { $0.createdAt < $1.createdAt }) { category in
                         CategoryRow(
                             category: category,
                             count: promptCount(for: category),
-                            isSelected: selectedCategory == category && !showingOnlyFavorites
+                            isSelected: selectedCategory?.id == category.id && !showingOnlyFavorites,
+                            onEdit: {
+                                editingCategory = category
+                            },
+                            onDelete: {
+                                // 检查是否有 prompt 使用该分类
+                                if isCategoryInUse(category) {
+                                    categoryCannotDelete = category
+                                    showingCannotDeleteAlert = true
+                                } else {
+                                    categoryToDelete = category
+                                    showingDeleteAlert = true
+                                }
+                            }
                         ) {
                             selectedCategory = category
                             showingOnlyFavorites = false
@@ -137,18 +199,25 @@ struct MainView: View {
             
             // 新建分类按钮
             Button {
-                // TODO: 实现新建分类
+                showingAddCategory = true
             } label: {
                 Label("New Category".localized, systemImage: "plus")
             }
             .buttonStyle(SidebarButtonStyle())
+            .onHover { hovering in
+                if hovering {
+                    NSCursor.pointingHand.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
             .padding(.horizontal, 12)
             .padding(.bottom, 20)
         }
         .background(Color(NSColor.controlBackgroundColor))
     }
     
-    /// 右侧主内容区
+    // right main content
     private var mainContent: some View {
         VStack(spacing: 0) {
             // 搜索栏
@@ -167,7 +236,7 @@ struct MainView: View {
         }
     }
     
-    /// 搜索头部
+    // search header
     private var searchHeader: some View {
         HStack {
             Image(systemName: "magnifyingglass")
@@ -175,6 +244,7 @@ struct MainView: View {
             
             TextField("Search Prompts...".localized, text: $searchText)
                 .textFieldStyle(.plain)
+                .focused($isSearchFocused)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
@@ -182,7 +252,7 @@ struct MainView: View {
         .cornerRadius(8)
     }
     
-    /// Prompt 列表
+    // prompt list
     private var promptList: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
@@ -196,7 +266,7 @@ struct MainView: View {
         }
     }
     
-    /// 空状态视图
+    // empty state view
     private var emptyStateView: some View {
         VStack(spacing: 20) {
             Image(systemName: "tray")
@@ -226,7 +296,7 @@ struct MainView: View {
     }
 }
 
-/// 导航按钮组件
+// navigation button
 struct NavigationButton: View {
     let title: String
     let icon: String
@@ -268,11 +338,13 @@ struct NavigationButton: View {
     }
 }
 
-/// 分类行组件
+// category row
 struct CategoryRow: View {
-    let category: PromptCategory
+    let category: Category
     let count: Int
     let isSelected: Bool
+    let onEdit: () -> Void
+    let onDelete: () -> Void
     let action: () -> Void
     
     var body: some View {
@@ -282,7 +354,7 @@ struct CategoryRow: View {
                     .fill(colorForCategory(category.color))
                     .frame(width: 12, height: 12)
                 
-                Text(category.displayName)
+                Text(category.name)
                     .fontWeight(isSelected ? .semibold : .regular)
                 
                 Spacer()
@@ -294,6 +366,17 @@ struct CategoryRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(CategoryButtonStyle(isSelected: isSelected))
+        .contextMenu {
+            Button("Edit".localized) {
+                onEdit()
+            }
+            
+            Divider()
+            
+            Button("Delete".localized, role: .destructive) {
+                onDelete()
+            }
+        }
         .onHover { isHovering in
             if isHovering {
                 NSCursor.pointingHand.push()
@@ -316,7 +399,7 @@ struct CategoryRow: View {
     }
 }
 
-/// 自定义按钮样式 - 解决默认内边距导致的空白间隙问题
+// custom button style
 struct SidebarButtonStyle: ButtonStyle {
     let backgroundColor: Color
     let foregroundColor: Color
@@ -342,7 +425,7 @@ struct SidebarButtonStyle: ButtonStyle {
     }
 }
 
-/// 主要按钮样式
+// primary button style
 struct PrimaryButtonStyle: ButtonStyle {
     let backgroundColor: Color
     let foregroundColor: Color
@@ -368,7 +451,7 @@ struct PrimaryButtonStyle: ButtonStyle {
     }
 }
 
-/// 导航按钮样式
+// navigation button style
 struct NavigationButtonStyle: ButtonStyle {
     let isSelected: Bool
     
@@ -385,7 +468,7 @@ struct NavigationButtonStyle: ButtonStyle {
     }
 }
 
-/// 分类按钮样式
+// category button style
 struct CategoryButtonStyle: ButtonStyle {
     let isSelected: Bool
     
@@ -400,4 +483,351 @@ struct CategoryButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
-} 
+}
+
+// MARK: - MainView extension - keyboard shortcuts
+extension MainView {
+    // set keyboard shortcuts
+    private func setupKeyboardShortcuts() {
+        // listen to new prompt shortcut
+        NotificationCenter.default.addObserver(
+            forName: .showAddPrompt,
+            object: nil,
+            queue: .main
+        ) { _ in
+            showingAddPrompt = true
+        }
+        
+        // listen to show favorites shortcut
+        NotificationCenter.default.addObserver(
+            forName: .showFavorites,
+            object: nil,
+            queue: .main
+        ) { _ in
+            showingOnlyFavorites = true
+            selectedCategory = nil
+        }
+        
+        // listen to search field focus shortcut
+        NotificationCenter.default.addObserver(
+            forName: .focusSearch,
+            object: nil,
+            queue: .main
+        ) { _ in
+            isSearchFocused = true
+        }
+        
+        // listen to quick access switch
+        NotificationCenter.default.addObserver(
+            forName: .toggleQuickAccess,
+            object: nil,
+            queue: .main
+        ) { _ in
+            // implement quick access function - can show a floating window
+            showQuickAccessWindow()
+        }
+    }
+    
+    // show quick access window
+    private func showQuickAccessWindow() {
+        // implement quick access window logic
+        // for example, show a search field or recently used prompts
+        print("show quick access window")
+    }
+    
+    // delete category
+    private func deleteCategory(_ category: Category) {
+        modelContext.delete(category)
+        
+        do {
+            try modelContext.save()
+            print("Category deleted successfully")
+            
+            // if the deleted category was selected, clear selection
+            if selectedCategory?.id == category.id {
+                selectedCategory = nil
+            }
+        } catch {
+            print("Failed to delete category: \(error)")
+        }
+    }
+    
+    // 检查分类是否被使用
+    private func isCategoryInUse(_ category: Category) -> Bool {
+        return prompts.contains { $0.category?.id == category.id }
+    }
+}
+
+// MARK: - Add Category View
+struct AddCategoryView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @State private var categoryName = ""
+    @State private var selectedColor: String = "blue"
+    @State private var selectedIcon: String = "folder"
+    
+    private let availableColors = ["blue", "green", "orange", "pink", "red", "gray"]
+    private let availableIcons = ["folder", "pencil", "chevron.left.forwardslash.chevron.right", "megaphone", "paintbrush", "briefcase", "star", "heart", "bookmark", "tag"]
+    
+    private var canSave: Bool {
+        !categoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+                // category name input
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Category Name".localized)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    TextField("Enter category name...".localized, text: $categoryName)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.body)
+                }
+                
+                // color selection
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Color".localized)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 12) {
+                        ForEach(availableColors, id: \.self) { color in
+                            Button {
+                                selectedColor = color
+                            } label: {
+                                Circle()
+                                    .fill(colorForName(color))
+                                    .frame(width: 32, height: 32)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(selectedColor == color ? Color.primary : Color.clear, lineWidth: 2)
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                
+                // icon selection
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Icon".localized)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 12) {
+                        ForEach(availableIcons, id: \.self) { icon in
+                            Button {
+                                selectedIcon = icon
+                            } label: {
+                                Image(systemName: icon)
+                                    .font(.title2)
+                                    .frame(width: 44, height: 44)
+                                    .background(selectedIcon == icon ? Color.blue.opacity(0.1) : Color.clear)
+                                    .foregroundColor(selectedIcon == icon ? .blue : .primary)
+                                    .cornerRadius(8)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                
+                Spacer()
+            }
+            .padding(24)
+            .navigationTitle("New Category".localized)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel".localized) {
+                        dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save".localized) {
+                        saveCategory()
+                    }
+                    .disabled(!canSave)
+                }
+            }
+        }
+        .frame(width: 400, height: 500)
+    }
+    
+    private func colorForName(_ colorName: String) -> Color {
+        switch colorName {
+        case "blue": return .blue
+        case "green": return .green
+        case "orange": return .orange
+        case "pink": return .pink
+        case "red": return .red
+        case "gray": return .gray
+        default: return .gray
+        }
+    }
+    
+    private func saveCategory() {
+        let trimmedName = categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // 创建新的自定义分类
+        let newCategory = Category(
+            name: trimmedName,
+            color: selectedColor,
+            iconName: selectedIcon,
+            isDefault: false
+        )
+        
+        // 保存到数据库
+        modelContext.insert(newCategory)
+        
+        do {
+            try modelContext.save()
+            print("New category saved: \(trimmedName)")
+        } catch {
+            print("Failed to save category: \(error)")
+        }
+        
+        dismiss()
+    }
+}
+
+// MARK: - Edit Category View
+struct EditCategoryView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    
+    let category: Category
+    
+    @State private var categoryName: String
+    @State private var selectedColor: String 
+    @State private var selectedIcon: String
+    
+    private let availableColors = ["blue", "green", "orange", "pink", "red", "gray"]
+    private let availableIcons = ["folder", "pencil", "chevron.left.forwardslash.chevron.right", "megaphone", "paintbrush", "briefcase", "star", "heart", "bookmark", "tag"]
+    
+    init(category: Category) {
+        self.category = category
+        self._categoryName = State(initialValue: category.name)
+        self._selectedColor = State(initialValue: category.color)
+        self._selectedIcon = State(initialValue: category.iconName)
+    }
+    
+    private var canSave: Bool {
+        !categoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+                // category name input
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Category Name".localized)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    TextField("Enter category name...".localized, text: $categoryName)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.body)
+                }
+                
+                // color selection
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Color".localized)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 12) {
+                        ForEach(availableColors, id: \.self) { color in
+                            Button {
+                                selectedColor = color
+                            } label: {
+                                Circle()
+                                    .fill(colorForName(color))
+                                    .frame(width: 32, height: 32)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(selectedColor == color ? Color.primary : Color.clear, lineWidth: 2)
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                
+                // icon selection
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Icon".localized)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 12) {
+                        ForEach(availableIcons, id: \.self) { icon in
+                            Button {
+                                selectedIcon = icon
+                            } label: {
+                                Image(systemName: icon)
+                                    .font(.title2)
+                                    .frame(width: 44, height: 44)
+                                    .background(selectedIcon == icon ? Color.blue.opacity(0.1) : Color.clear)
+                                    .foregroundColor(selectedIcon == icon ? .blue : .primary)
+                                    .cornerRadius(8)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                
+                Spacer()
+            }
+            .padding(24)
+            .navigationTitle("Edit Category".localized)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel".localized) {
+                        dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save".localized) {
+                        saveCategory()
+                    }
+                    .disabled(!canSave)
+                }
+            }
+        }
+        .frame(width: 400, height: 500)
+    }
+    
+    private func colorForName(_ colorName: String) -> Color {
+        switch colorName {
+        case "blue": return .blue
+        case "green": return .green
+        case "orange": return .orange
+        case "pink": return .pink
+        case "red": return .red
+        case "gray": return .gray
+        default: return .gray
+        }
+    }
+    
+    private func saveCategory() {
+        let trimmedName = categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // 更新分类属性
+        category.name = trimmedName
+        category.color = selectedColor
+        category.iconName = selectedIcon
+        
+        do {
+            try modelContext.save()
+            print("Category updated successfully")
+        } catch {
+            print("Failed to update category: \(error)")
+        }
+        
+        dismiss()
+    }
+}

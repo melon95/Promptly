@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// 语言设置视图
+// language settings view
 struct LanguageSettingsView: View {
     @StateObject private var localizationManager = LocalizationManager.shared
     @Environment(\.dismiss) private var dismiss
@@ -15,9 +15,9 @@ struct LanguageSettingsView: View {
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 20) {
-                // 标题
+                // title
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(localized: "settings.language")
+                    Text("settings.language".localized)
                         .font(.title2)
                         .fontWeight(.semibold)
                     
@@ -27,7 +27,7 @@ struct LanguageSettingsView: View {
                 }
                 .padding(.horizontal)
                 
-                // 语言选项列表
+                // language options list
                 List {
                     ForEach(LocalizationManager.SupportedLanguage.allCases) { language in
                         LanguageRow(
@@ -54,7 +54,7 @@ struct LanguageSettingsView: View {
     }
 }
 
-/// 语言选项行
+// language option row
 struct LanguageRow: View {
     let language: LocalizationManager.SupportedLanguage
     let isSelected: Bool
@@ -89,7 +89,7 @@ struct LanguageRow: View {
     }
 }
 
-/// 语言设置快速访问视图
+// language settings quick access view
 struct LanguageQuickSelectorView: View {
     @StateObject private var localizationManager = LocalizationManager.shared
     
@@ -99,7 +99,7 @@ struct LanguageQuickSelectorView: View {
                 Image(systemName: "globe")
                     .foregroundColor(.accentColor)
                 
-                Text(localized: "settings.language")
+                Text("settings.language".localized)
                     .font(.headline)
                 
                 Spacer()

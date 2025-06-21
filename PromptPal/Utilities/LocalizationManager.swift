@@ -8,18 +8,18 @@
 import Foundation
 import SwiftUI
 
-/// 本地化管理器，处理应用的多语言支持
+// localization manager, handle multi-language support
 class LocalizationManager: ObservableObject {
     static let shared = LocalizationManager()
     
-    /// 支持的语言列表
+    // supported languages list
     enum SupportedLanguage: String, CaseIterable, Identifiable {
         case english = "en"
         case simplifiedChinese = "zh-Hans"
         
         var id: String { rawValue }
         
-        /// 语言显示名称
+        // language display name
         var displayName: String {
             switch self {
             case .english:
@@ -29,13 +29,13 @@ class LocalizationManager: ObservableObject {
             }
         }
         
-        /// 本地化显示名称
+        // localized display name
         var localizedDisplayName: String {
             switch self {
             case .english:
-                return NSLocalizedString("language.english", value: "English", comment: "English language name")
+                return "language.english".localized
             case .simplifiedChinese:
-                return NSLocalizedString("language.chinese", value: "简体中文", comment: "Chinese language name")
+                return "language.chinese".localized
             }
         }
     }
@@ -44,19 +44,23 @@ class LocalizationManager: ObservableObject {
         didSet {
             UserDefaults.standard.set(currentLanguage.rawValue, forKey: "selected_language")
             updateCurrentBundle()
+            // 通知需要重启应用以完全应用语言更改
+            showRestartAlert()
         }
     }
+    
+    @Published var showingRestartAlert = false
     
     private var currentBundle: Bundle = Bundle.main
     
     private init() {
-        // 从用户偏好设置中读取语言选择
+        // read language selection from user preferences
         let savedLanguage = UserDefaults.standard.string(forKey: "selected_language") ?? ""
         self.currentLanguage = SupportedLanguage(rawValue: savedLanguage) ?? .english
         updateCurrentBundle()
     }
     
-    /// 更新当前的资源包
+    // update current bundle
     private func updateCurrentBundle() {
         if let path = Bundle.main.path(forResource: currentLanguage.rawValue, ofType: "lproj"),
            let bundle = Bundle(path: path) {
@@ -66,62 +70,75 @@ class LocalizationManager: ObservableObject {
         }
     }
     
-    /// 获取本地化字符串
-    /// - Parameters:
-    ///   - key: 本地化键值
-    ///   - defaultValue: 默认值
-    ///   - comment: 注释
-    /// - Returns: 本地化后的字符串
+    // get localized string
+    // - Parameters:
+    //   - key: localized key
+    //   - defaultValue: default value
+    //   - comment: comment
+    // - Returns: localized string
     func localizedString(forKey key: String, defaultValue: String = "", comment: String = "") -> String {
         return currentBundle.localizedString(forKey: key, value: defaultValue, table: nil)
     }
     
-    /// 获取带参数的本地化字符串
-    /// - Parameters:
-    ///   - key: 本地化键值
-    ///   - arguments: 格式化参数
-    /// - Returns: 格式化后的本地化字符串
+    // get localized string with arguments
+    // - Parameters:
+    //   - key: localized key
+    //   - arguments: arguments
+    // - Returns: localized string
     func localizedString(forKey key: String, arguments: CVarArg...) -> String {
         let format = localizedString(forKey: key, defaultValue: key, comment: "")
         return String(format: format, arguments: arguments)
     }
+    
+    // 显示重启提示
+    private func showRestartAlert() {
+        // 延迟一点时间显示提示，让UI有时间更新
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.showingRestartAlert = true
+        }
+    }
+    
+    // 重启应用
+    func restartApplication() {
+        NSApplication.shared.terminate(nil)
+    }
 }
 
-/// String 扩展，提供便捷的本地化方法
+// String extension, provide convenient localization methods
 extension String {
-    /// 获取本地化字符串
+    // get localized string
     var localized: String {
         return LocalizationManager.shared.localizedString(forKey: self, defaultValue: self)
     }
     
-    /// 获取带参数的本地化字符串
-    /// - Parameter arguments: 格式化参数
-    /// - Returns: 格式化后的本地化字符串
+    // get localized string with arguments
+    // - Parameter arguments: arguments
+    // - Returns: localized string
     func localized(with arguments: CVarArg...) -> String {
         let format = LocalizationManager.shared.localizedString(forKey: self, defaultValue: self, comment: "")
         return String(format: format, arguments: arguments)
     }
     
-    /// 获取带默认值的本地化字符串
-    /// - Parameter defaultValue: 默认值
-    /// - Returns: 本地化字符串
+    // get localized string with default value
+    // - Parameter defaultValue: default value
+    // - Returns: localized string
     func localized(defaultValue: String) -> String {
         return LocalizationManager.shared.localizedString(forKey: self, defaultValue: defaultValue)
     }
 }
 
-/// SwiftUI Text 视图的本地化扩展
+// SwiftUI Text view localization extension
 extension Text {
-    /// 创建本地化的 Text 视图
-    /// - Parameter key: 本地化键值
+    // create localized Text view
+    // - Parameter key: localized key
     init(localized key: String) {
         self.init(key.localized)
     }
     
-    /// 创建带默认值的本地化 Text 视图
-    /// - Parameters:
-    ///   - key: 本地化键值
-    ///   - defaultValue: 默认值
+    // create localized Text view with default value
+    // - Parameters:
+    //   - key: localized key
+    //   - defaultValue: default value
     init(localized key: String, defaultValue: String) {
         self.init(key.localized(defaultValue: defaultValue))
     }

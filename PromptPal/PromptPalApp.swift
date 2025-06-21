@@ -10,10 +10,11 @@ import SwiftData
 
 @main
 struct PromptPalApp: App {
-    /// SwiftData 模型容器
+    // SwiftData model container
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Prompt.self,
+            Category.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -25,7 +26,7 @@ struct PromptPalApp: App {
     }()
     
     var body: some Scene {
-        // 主窗口
+        // main window
         WindowGroup("PromptPal") {
             ContentView()
         }
@@ -35,17 +36,53 @@ struct PromptPalApp: App {
             AppCommands()
         }
         
-        // 设置窗口
+        // settings window
         Settings {
             SettingsView()
         }
     }
 }
 
-/// 应用菜单命令
+// app menu commands
 struct AppCommands: Commands {
     var body: some Commands {
-        // 使用默认的设置菜单项，它会自动调用 Settings 场景
-        EmptyCommands()
+        // file menu
+        CommandGroup(replacing: .newItem) {
+                                    Button("New Prompt".localized) {
+                NotificationCenter.default.post(name: .showAddPrompt, object: nil)
+            }
+            .keyboardShortcut("n", modifiers: .command)
+        }
+        
+        // edit menu
+        CommandGroup(after: .pasteboard) {
+            Divider()
+            
+                                    Button("Toggle Quick Access".localized) {
+                NotificationCenter.default.post(name: .toggleQuickAccess, object: nil)
+            }
+            .keyboardShortcut("p", modifiers: [.option])
+        }
+        
+        // view menu
+        CommandGroup(after: .toolbar) {
+                                    Button("Focus Search".localized) {
+                NotificationCenter.default.post(name: .focusSearch, object: nil)
+            }
+            .keyboardShortcut("f", modifiers: .command)
+            
+            Button("Show Favorites".localized) {
+                NotificationCenter.default.post(name: .showFavorites, object: nil)
+            }
+            .keyboardShortcut("f", modifiers: [.command, .shift])
+        }
     }
+}
+
+// MARK: - Notification Names
+extension Notification.Name {
+    static let showAddPrompt = Notification.Name("showAddPrompt")
+    static let toggleQuickAccess = Notification.Name("toggleQuickAccess")
+    static let focusSearch = Notification.Name("focusSearch")
+    static let showFavorites = Notification.Name("showFavorites")
 }

@@ -144,6 +144,48 @@
 "Cancel" = "取消";
 "Save" = "保存";
 
+// MARK: - 快捷键设置
+"Customize" = "自定义";
+"Customize keyboard shortcuts" = "自定义键盘快捷键";
+"Quick Access" = "快速访问";
+"New Prompt" = "新建提示词";
+"Keyboard Shortcuts" = "键盘快捷键";
+"Click on a shortcut to customize it. Press Escape to cancel editing." = "点击快捷键进行自定义。按 Escape 键取消编辑。";
+"Reset to Defaults" = "重置为默认";
+"settings.hotkey.quick_access" = "快速访问";
+"settings.hotkey.new_prompt" = "新建提示词";
+"settings.hotkey.focus_search" = "聚焦搜索";
+"settings.hotkey.show_favorites" = "显示收藏";
+"settings.hotkey.quick_access.description" = "打开快速访问窗口";
+"settings.hotkey.new_prompt.description" = "创建新的提示词";
+"settings.hotkey.focus_search.description" = "聚焦到搜索框";
+"settings.hotkey.show_favorites.description" = "显示收藏的提示词";
+
+// MARK: - 菜单快捷键
+"New Prompt" = "新建提示词";
+"Toggle Quick Access" = "切换快速访问";
+"Focus Search" = "聚焦搜索";
+"Show Favorites" = "显示收藏";
+
+// MARK: - 分类管理
+"Category Name" = "分类名称";
+"Enter category name..." = "输入分类名称...";
+"Color" = "颜色";
+"Icon" = "图标";
+"Edit Category" = "编辑分类";
+"Delete Category" = "删除分类";
+"Are you sure you want to delete the category \"%@\"?" = "您确定要删除分类\"%@\"吗？";
+"Cannot Delete Category" = "无法删除分类";
+"Cannot delete category \"%@\" because it contains prompts. Please move or delete the prompts first." = "无法删除分类\"%@\"，因为其中包含提示词。请先移动或删除这些提示词。";
+"OK" = "好的";
+"Edit" = "编辑";
+
+// MARK: - 语言切换
+"language.changed.title" = "语言已更改";
+"language.changed.message" = "请重启应用以应用新的语言设置。";
+"language.changed.restart" = "重启应用";
+"language.changed.later" = "稍后";
+
 // MARK: - 其他
 "language.english" = "English";
 "language.chinese" = "简体中文";
