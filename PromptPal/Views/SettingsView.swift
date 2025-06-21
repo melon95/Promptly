@@ -7,20 +7,20 @@
 
 import SwiftUI
 
-/// 主设置视图
+// main settings view
 struct SettingsView: View {
     @StateObject private var localizationManager = LocalizationManager.shared
     
     var body: some View {
         TabView {
-            // 通用设置标签页
+            // general settings tab
             GeneralSettingsTab()
                 .tabItem {
                     Label("settings.general".localized, systemImage: "gear")
                 }
                 .tag("general")
             
-            // 高级设置标签页
+            // advanced settings tab
             AdvancedSettingsTab()
                 .tabItem {
                     Label("Advanced".localized, systemImage: "gearshape.2")
@@ -28,17 +28,25 @@ struct SettingsView: View {
                 .tag("advanced")
         }
         .frame(width: 450, height: 300)
+        .alert("language.changed.title".localized, isPresented: $localizationManager.showingRestartAlert) {
+            Button("language.changed.restart".localized) {
+                localizationManager.restartApplication()
+            }
+            Button("language.changed.later".localized, role: .cancel) { }
+        } message: {
+            Text("language.changed.message".localized)
+        }
     }
 }
 
-/// 通用设置标签页
+// general settings tab
 struct GeneralSettingsTab: View {
     var body: some View {
         Form {
-            // 语言设置
+            // language settings
             LanguageSettingRow()
             
-            // 主题设置  
+            // theme settings  
             ThemeSettingRow()
             
             Spacer()
@@ -48,17 +56,17 @@ struct GeneralSettingsTab: View {
     }
 }
 
-/// 高级设置标签页
+// advanced settings tab
 struct AdvancedSettingsTab: View {
     var body: some View {
         Form {
-            // 全局快捷键
+            // global shortcuts
             HotkeySettingRow()
             
-            // iCloud 同步
+            // iCloud sync
             iCloudSyncRow()
             
-            // 关于信息
+            // about information
             Divider()
             AboutRow()
             
@@ -69,7 +77,7 @@ struct AdvancedSettingsTab: View {
     }
 }
 
-/// 语言设置行
+// language settings row
 struct LanguageSettingRow: View {
     @StateObject private var localizationManager = LocalizationManager.shared
     @State private var showingLanguageSettings = false
@@ -77,7 +85,7 @@ struct LanguageSettingRow: View {
     var body: some View {
         HStack {
             Label {
-                Text(localized: "settings.language")
+                Text("settings.language".localized)
             } icon: {
                 Image(systemName: "globe")
                     .foregroundColor(.blue)
@@ -85,11 +93,11 @@ struct LanguageSettingRow: View {
             
             Spacer()
             
-            // 当前语言显示
-            Text(localizationManager.currentLanguage.displayName)
-                .foregroundColor(.secondary)
+            // current language display
+            // Text(localizationManager.currentLanguage.displayName)
+            //     .foregroundColor(.secondary)
             
-            // 语言选择器
+            // language picker
             Picker("", selection: $localizationManager.currentLanguage) {
                 ForEach(LocalizationManager.SupportedLanguage.allCases) { language in
                     Text(language.displayName)
@@ -102,14 +110,14 @@ struct LanguageSettingRow: View {
     }
 }
 
-/// 主题设置行
+// theme settings row
 struct ThemeSettingRow: View {
     @State private var selectedTheme = "System"
     
     var body: some View {
         HStack {
             Label {
-                Text(localized: "settings.theme")
+                Text("settings.theme".localized)
             } icon: {
                 Image(systemName: "paintbrush")
                     .foregroundColor(.purple)
@@ -128,35 +136,184 @@ struct ThemeSettingRow: View {
     }
 }
 
-/// 快捷键设置行
+// hotkey settings row
 struct HotkeySettingRow: View {
-    @State private var currentHotkey = "⌥P"
+    @StateObject private var hotkeyManager = HotkeyManager.shared
+    @State private var showingHotkeySettings = false
     
     var body: some View {
-        HStack {
-            Label {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(localized: "settings.hotkey")
-                    Text("settings.hotkey.description".localized)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("settings.hotkey".localized)
+                        Text("Customize keyboard shortcuts".localized)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "keyboard")
+                        .foregroundColor(.green)
                 }
-            } icon: {
-                Image(systemName: "keyboard")
-                    .foregroundColor(.green)
+                
+                Spacer()
+                
+                Button("Customize".localized) {
+                    showingHotkeySettings = true
+                }
+                .buttonStyle(.link)
             }
             
-            Spacer()
-            
-            // 当前快捷键显示
-            Text("settings.hotkey.current".localized(with: currentHotkey))
-                .font(.system(.body, design: .monospaced))
-                .foregroundColor(.secondary)
+            // display main hotkeys
+            VStack(alignment: .leading, spacing: 4) {
+                HotkeyDisplayRow(
+                    title: "Quick Access",
+                    keyCombo: hotkeyManager.getHotkey(for: .quickAccess)
+                )
+                HotkeyDisplayRow(
+                    title: "New Prompt",
+                    keyCombo: hotkeyManager.getHotkey(for: .newPrompt)
+                )
+            }
+            .font(.caption)
+            .foregroundColor(.secondary)
+        }
+        .sheet(isPresented: $showingHotkeySettings) {
+            HotkeySettingsView()
         }
     }
 }
 
-/// iCloud 同步行
+// hotkey display row
+struct HotkeyDisplayRow: View {
+    let title: String
+    let keyCombo: String
+    
+    var body: some View {
+        HStack {
+            Text(title.localized)
+            Spacer()
+            Text(keyCombo)
+                .font(.system(.caption, design: .monospaced))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color.secondary.opacity(0.1))
+                .cornerRadius(4)
+        }
+    }
+}
+
+// hotkey settings view
+struct HotkeySettingsView: View {
+    @StateObject private var hotkeyManager = HotkeyManager.shared
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section {
+                    ForEach(HotkeyManager.HotkeyType.allCases) { hotkeyType in
+                        HotkeyEditRow(hotkeyType: hotkeyType)
+                    }
+                } header: {
+                    Text("Keyboard Shortcuts".localized)
+                } footer: {
+                    Text("Click on a shortcut to customize it. Press Escape to cancel editing.".localized)
+                        .font(.caption)
+                }
+                
+                Section {
+                    Button("Reset to Defaults".localized) {
+                        hotkeyManager.resetAllHotkeys()
+                    }
+                    .foregroundColor(.red)
+                }
+            }
+            .navigationTitle("Keyboard Shortcuts".localized)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done".localized) {
+                        dismiss()
+                    }
+                }
+            }
+        }
+        .frame(width: 500, height: 400)
+    }
+}
+
+// hotkey edit row
+struct HotkeyEditRow: View {
+    let hotkeyType: HotkeyManager.HotkeyType
+    @StateObject private var hotkeyManager = HotkeyManager.shared
+    @State private var isEditing = false
+    @State private var tempKeyCombo = ""
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(hotkeyType.displayName)
+                    .fontWeight(.medium)
+                Text(hotkeyType.description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            if isEditing {
+                TextField("Press keys...", text: $tempKeyCombo)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 100)
+                    .onSubmit {
+                        saveHotkey()
+                    }
+                    .onExitCommand {
+                        cancelEditing()
+                    }
+            } else {
+                Button(hotkeyManager.getHotkey(for: hotkeyType)) {
+                    startEditing()
+                }
+                .font(.system(.body, design: .monospaced))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.secondary.opacity(0.1))
+                .cornerRadius(6)
+            }
+        }
+    }
+    
+    private func startEditing() {
+        isEditing = true
+        tempKeyCombo = hotkeyManager.getHotkey(for: hotkeyType)
+    }
+    
+    private func cancelEditing() {
+        isEditing = false
+        tempKeyCombo = ""
+    }
+    
+    private func saveHotkey() {
+        guard !tempKeyCombo.isEmpty else {
+            cancelEditing()
+            return
+        }
+        
+        if hotkeyManager.isHotkeyConflicting(tempKeyCombo, excludeType: hotkeyType) {
+            // show conflict warning
+            // here can add a warning dialog
+            cancelEditing()
+            return
+        }
+        
+        hotkeyManager.updateHotkey(for: hotkeyType, to: tempKeyCombo)
+        isEditing = false
+        tempKeyCombo = ""
+    }
+}
+
+// iCloud sync row
 struct iCloudSyncRow: View {
     @State private var iCloudSyncEnabled = true
     
@@ -164,7 +321,7 @@ struct iCloudSyncRow: View {
         HStack {
             Label {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(localized: "settings.sync")
+                    Text("settings.sync".localized)
                     Text("settings.sync.description".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -181,28 +338,48 @@ struct iCloudSyncRow: View {
     }
 }
 
-/// 关于行
+// about row
 struct AboutRow: View {
     var body: some View {
-        HStack {
-            Label {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("app.name".localized)
-                        .fontWeight(.medium)
-                    Text("app.tagline".localized)
+        VStack(spacing: 12) {
+            HStack {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("app.name".localized)
+                            .fontWeight(.medium)
+                        Text("app.tagline".localized)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "info.circle")
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(VersionManager.shared.getFormattedVersion())
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
-            } icon: {
-                Image(systemName: "info.circle")
-                    .foregroundColor(.gray)
             }
-            
+        }
+    }
+}
+
+// info display row
+struct InfoRow: View {
+    let title: String
+    let value: String
+    
+    var body: some View {
+        HStack {
+            Text(title.localized + ":")
+                .fontWeight(.medium)
             Spacer()
-            
-            Text("Version".localized + " 1.0")
-                .font(.caption)
-                .foregroundColor(.secondary)
+            Text(value)
+                .foregroundColor(.primary)
         }
     }
 }

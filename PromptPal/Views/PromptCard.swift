@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-/// Prompt 卡片组件
+// prompt card
 struct PromptCard: View {
     @Environment(\.modelContext) private var modelContext
     let prompt: Prompt
@@ -19,7 +19,7 @@ struct PromptCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // 标题和收藏按钮
+            // title and favorite button
             HStack(alignment: .top) {
                 Text(prompt.title)
                     .font(.headline)
@@ -38,9 +38,16 @@ struct PromptCard: View {
                 }
                 .buttonStyle(.plain)
                 .opacity(isHovered ? 1 : (prompt.isFavorite ? 1 : 0.6))
+                .onHover { hovering in
+                    if hovering {
+                        NSCursor.pointingHand.push()
+                    } else {
+                        NSCursor.pop()
+                    }
+                }
             }
             
-            // 描述
+            // description
             if !prompt.promptDescription.isEmpty {
                 Text(prompt.promptDescription)
                     .font(.subheadline)
@@ -48,7 +55,7 @@ struct PromptCard: View {
                     .lineLimit(2)
             }
             
-            // 标签
+            // tags
             if !prompt.tags.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
@@ -62,9 +69,9 @@ struct PromptCard: View {
             
             Spacer()
             
-            // 底部信息
+            // bottom information
             HStack {
-                // 日期
+                // date
                 HStack(spacing: 4) {
                     Image(systemName: "calendar")
                         .font(.caption)
@@ -77,8 +84,10 @@ struct PromptCard: View {
                 
                 Spacer()
                 
-                // 分类标签
-                CategoryBadge(category: prompt.category)
+                // category tag
+                if let category = prompt.category {
+                    CategoryBadge(category: category)
+                }
             }
         }
         .padding(16)
@@ -105,26 +114,26 @@ struct PromptCard: View {
         }
     }
     
-    /// 上下文菜单项
+    // context menu items
     private var contextMenuItems: some View {
         Group {
             Button {
                 showingEditSheet = true
             } label: {
-                Label("Edit".localized, systemImage: "pencil")
+                                        Label("Edit".localized, systemImage: "pencil")
             }
             
             Button {
                 copyPromptToClipboard()
             } label: {
-                Label("Copy Prompt".localized, systemImage: "doc.on.doc")
+                                        Label("Copy Prompt".localized, systemImage: "doc.on.doc")
             }
             
             Button {
                 toggleFavorite()
             } label: {
                 Label(
-                    prompt.isFavorite ? "Remove from Favorites".localized : "Add to Favorites".localized,
+                                            prompt.isFavorite ? "Remove from Favorites".localized : "Add to Favorites".localized,
                     systemImage: prompt.isFavorite ? "heart.slash" : "heart"
                 )
             }
@@ -134,12 +143,12 @@ struct PromptCard: View {
             Button(role: .destructive) {
                 deletePrompt()
             } label: {
-                Label("Delete".localized, systemImage: "trash")
+                                        Label("Delete".localized, systemImage: "trash")
             }
         }
     }
     
-    /// 切换收藏状态
+    // toggle favorite
     private func toggleFavorite() {
         withAnimation(.easeInOut(duration: 0.2)) {
             prompt.isFavorite.toggle()
@@ -153,16 +162,16 @@ struct PromptCard: View {
         }
     }
     
-    /// 复制 Prompt 到剪贴板
+    // copy prompt to clipboard
     private func copyPromptToClipboard() {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(prompt.userPrompt, forType: .string)
         
-        // TODO: 显示复制成功提示
+        // TODO: show copy success hint
     }
     
-    /// 删除 Prompt
+    // delete prompt
     private func deletePrompt() {
         withAnimation(.easeInOut(duration: 0.3)) {
             modelContext.delete(prompt)
@@ -175,16 +184,26 @@ struct PromptCard: View {
         }
     }
     
-    /// 格式化日期
+    // format date
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
+        
+        // set locale based on current language
+        let currentLanguage = LocalizationManager.shared.currentLanguage
+        switch currentLanguage {
+        case .english:
+            formatter.locale = Locale(identifier: "en_US")
+        case .simplifiedChinese:
+            formatter.locale = Locale(identifier: "zh_CN")
+        }
+        
         return formatter.string(from: date)
     }
 }
 
-/// 标签视图
+// tag view
 struct TagView: View {
     let text: String
     
@@ -199,9 +218,9 @@ struct TagView: View {
     }
 }
 
-/// 分类徽章
+// category badge
 struct CategoryBadge: View {
-    let category: PromptCategory
+    let category: Category
     
     var body: some View {
         HStack(spacing: 4) {
@@ -209,7 +228,7 @@ struct CategoryBadge: View {
                 .fill(colorForCategory(category.color))
                 .frame(width: 6, height: 6)
             
-            Text(category.displayName)
+            Text(category.name)
                 .font(.caption)
                 .foregroundColor(.secondary)
         }

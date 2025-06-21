@@ -8,19 +8,20 @@
 import SwiftUI
 import SwiftData
 
-/// 添加/编辑 Prompt 视图
+// add/edit prompt view
 struct AddPromptView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Query private var categories: [Category]
     
-    let prompt: Prompt? // nil 表示新建，非 nil 表示编辑
+    let prompt: Prompt? // nil means new, non-nil means edit
     
-    /// 便利初始化器，用于新建 Prompt
+    // convenience initializer for new prompt
     init() {
         self.prompt = nil
     }
     
-    /// 初始化器，用于编辑现有 Prompt
+    // initializer for editing existing prompt
     init(prompt: Prompt) {
         self.prompt = prompt
     }
@@ -28,7 +29,7 @@ struct AddPromptView: View {
     @State private var title = ""
     @State private var description = ""
     @State private var userPrompt = ""
-    @State private var selectedCategory: PromptCategory = .other
+    @State private var selectedCategory: Category? = nil
     @State private var tags: [String] = []
     @State private var newTag = ""
     @State private var isFavorite = false
@@ -48,22 +49,22 @@ struct AddPromptView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    // 标题输入
+                    // title input
                     titleSection
                     
-                    // 描述输入
+                    // description input
                     descriptionSection
                     
-                    // 分类选择
+                    // category selection
                     categorySection
                     
-                    // 标签输入
+                    // tags input
                     tagsSection
                     
-                    // Prompt 内容输入
+                    // prompt content input
                     promptSection
                     
-                    // 收藏选项
+                    // favorite option
                     favoriteSection
                 }
                 .padding(24)
@@ -90,7 +91,7 @@ struct AddPromptView: View {
         }
     }
     
-    /// 标题输入区域
+    // title input area
     private var titleSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Title".localized)
@@ -103,7 +104,7 @@ struct AddPromptView: View {
         }
     }
     
-    /// 描述输入区域
+    // description input area
     private var descriptionSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Description".localized)
@@ -117,38 +118,64 @@ struct AddPromptView: View {
         }
     }
     
-    /// 分类选择区域
+    // category selection area
     private var categorySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Category".localized)
                 .font(.headline)
                 .foregroundColor(.primary)
             
-            Picker("Select Category".localized, selection: $selectedCategory) {
-                ForEach(PromptCategory.allCases, id: \.self) { category in
-                    HStack {
+            Menu {
+                Button("None".localized) {
+                    selectedCategory = nil
+                }
+                
+                ForEach(0..<categories.count, id: \.self) { index in
+                    Button(action: {
+                        selectedCategory = categories[index]
+                    }) {
+                        HStack {
+                            Circle()
+                                .fill(colorForCategory(categories[index].color))
+                                .frame(width: 12, height: 12)
+                            
+                            Text(categories[index].name)
+                        }
+                    }
+                }
+            } label: {
+                HStack {
+                    if let category = selectedCategory {
                         Circle()
                             .fill(colorForCategory(category.color))
                             .frame(width: 12, height: 12)
                         
-                        Text(category.displayName)
+                        Text(category.name)
+                    } else {
+                        Text("Select Category".localized)
                     }
-                    .tag(category)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.down")
+                        .foregroundColor(.secondary)
                 }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color(NSColor.controlBackgroundColor))
+                .cornerRadius(6)
             }
-            .pickerStyle(.menu)
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
     
-    /// 标签输入区域
+    // tags input area
     private var tagsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Tags".localized)
                 .font(.headline)
                 .foregroundColor(.primary)
             
-            // 添加新标签输入框
+            // add new tag input field
             HStack {
                 TextField("Add tag...".localized, text: $newTag)
                     .textFieldStyle(.roundedBorder)
@@ -163,7 +190,7 @@ struct AddPromptView: View {
                 .disabled(newTag.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
             
-            // 当前已有的标签（显示在输入框下方）
+            // existing tags (displayed below the input field)
             if !tags.isEmpty {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), alignment: .leading, spacing: 8) {
                     ForEach(tags, id: \.self) { tag in
@@ -178,7 +205,7 @@ struct AddPromptView: View {
         }
     }
     
-    /// Prompt 内容输入区域
+    // prompt content input area
     private var promptSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Prompt Content".localized)
@@ -198,13 +225,13 @@ struct AddPromptView: View {
         }
     }
     
-    /// 收藏选项区域
+    // favorite option area
     private var favoriteSection: some View {
         Toggle("Add to Favorites".localized, isOn: $isFavorite)
             .font(.headline)
     }
     
-    /// 加载 Prompt 数据（编辑模式）
+    // load prompt data (edit mode)
     private func loadPromptData() {
         guard let prompt = prompt else { return }
         
@@ -216,7 +243,7 @@ struct AddPromptView: View {
         isFavorite = prompt.isFavorite
     }
     
-    /// 添加标签
+    // add tag
     private func addTag() {
         let trimmedTag = newTag.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedTag.isEmpty, !tags.contains(trimmedTag) else { return }
@@ -228,14 +255,14 @@ struct AddPromptView: View {
         isNewTagFocused = true
     }
     
-    /// 保存 Prompt
+    // save prompt
     private func savePrompt() {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedUserPrompt = userPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
         
         if let existingPrompt = prompt {
-            // 编辑现有 Prompt
+            // edit existing prompt
             existingPrompt.title = trimmedTitle
             existingPrompt.promptDescription = trimmedDescription
             existingPrompt.userPrompt = trimmedUserPrompt
@@ -244,7 +271,7 @@ struct AddPromptView: View {
             existingPrompt.isFavorite = isFavorite
             existingPrompt.updatedAt = Date()
         } else {
-            // 创建新 Prompt
+            // create new prompt
             let newPrompt = Prompt(
                 title: trimmedTitle,
                 description: trimmedDescription,
@@ -264,7 +291,7 @@ struct AddPromptView: View {
         }
     }
     
-    /// 获取分类对应的颜色
+    // get color for category
     private func colorForCategory(_ colorName: String) -> Color {
         switch colorName {
         case "blue": return .blue
@@ -278,9 +305,7 @@ struct AddPromptView: View {
     }
 }
 
-
-
-/// 标签芯片（可删除）
+// tag chip (deletable)
 struct TagChip: View {
     let text: String
     let onDelete: () -> Void
