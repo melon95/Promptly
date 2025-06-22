@@ -2,6 +2,8 @@
 
 A macOS application for managing and using AI prompts.
 
+**Website: [https://promptpal.melon95.cn/](https://promptpal.melon95.cn/)**
+
 **[中文文档 / Chinese Documentation](README-zh.md)**
 
 ## 🚀 Features

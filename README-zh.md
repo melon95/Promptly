@@ -2,6 +2,10 @@
 
 一个用于管理和使用 AI 提示词的 macOS 应用。
 
+**网站: [https://promptpal.melon95.cn/zh/](https://promptpal.melon95.cn/zh/)**
+
+**[English Documentation](README.md)**
+
 ## 🚀 功能特性
 
 - ✨ 简洁的提示词管理界面
