@@ -186,6 +186,11 @@
 "language.changed.restart" = "重启应用";
 "language.changed.later" = "稍后";
 
+// MARK: - GitHub
+"github.title" = "GitHub";
+"github.description" = "查看源代码和更多信息";
+"github.visit" = "访问 GitHub";
+
 // MARK: - 其他
 "language.english" = "English";
 "language.chinese" = "简体中文";
