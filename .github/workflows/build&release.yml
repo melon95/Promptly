@@ -49,7 +49,7 @@ jobs:
       - name: Create DMG
         run: |
           create-dmg \
-            --volname "Promptly Installer" \
+            --volname "Promptly" \
             --window-pos 200 120 \
             --window-size 800 400 \
             --icon-size 100 \
@@ -83,7 +83,7 @@ jobs:
           name: Promptly-dmg-artifact
 
       - name: Create Release and Upload DMG
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: Promptly.dmg
