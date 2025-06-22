@@ -1,19 +1,42 @@
 # PromptPal
 
-一个用于管理和使用 AI 提示词的 macOS 应用。
+[![构建状态](https://github.com/melon95/PromptPal/actions/workflows/build-macos.yml/badge.svg)](https://github.com/melon95/PromptPal/actions/workflows/build-macos.yml)
+[![许可证: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Swift](https://img.shields.io/badge/Swift-5.9+-orange.svg)
+![macOS](https://img.shields.io/badge/macOS-15.5+-blue.svg)
+
+**一款专业的 AI 提示词管理工具，专为 macOS 设计，旨在提升您的 AI 工作流效率。**
+
+PromptPal 帮助您高效管理、组织和使用 AI 提示词。告别在繁杂笔记中寻找提示词的烦恼，开始构建您自己的高价值个人提示词库。
 
 **网站: [https://promptpal.melon95.cn/zh/](https://promptpal.melon95.cn/zh/)**
 
 **[English Documentation](README.md)**
 
+## ✨ 产品预览
+
+| 主界面                                     | 提示词详情                                     |
+| -------------------------------------------------- | -------------------------------------------------- |
+| ![主界面](https://promptpal.melon95.cn/screenshots/main-interface.png) | ![提示词详情](https://promptpal.melon95.cn/screenshots/prompt-detail.png) |
+| **分类管理**                            | **应用设置**                                   |
+| ![分类管理](https://promptpal.melon95.cn/screenshots/category.png) | ![应用设置](https://promptpal.melon95.cn/screenshots/settings.png) |
+
 ## 🚀 功能特性
 
-- ✨ 简洁的提示词管理界面
-- 🏷️ 标签系统
-- 🔍 快速搜索
-- 🌐 多语言支持（中文/英文）
-- 📋 一键复制到剪贴板
-- 🎨 现代化 SwiftUI 界面
+- ✨ **简洁的管理界面**: 基于 SwiftUI 构建的现代化界面，完美适配 macOS 设计语言，支持深色和浅色模式。
+- 🔍 **智能搜索功能**: 实时搜索提示词内容、标题和标签，快速找到您需要的提示词，提升工作效率。
+- 🏷️ **灵活分类管理**: 支持自定义分类和标签系统，按照您的工作习惯组织管理提示词。
+- ⚡ **全局快捷键**: 自定义全局热键快速调出应用，无需中断当前工作流程，随时随地使用提示词。
+- 📋 **一键复制使用**: 点击即可复制提示词到剪贴板，支持参数化提示词的智能替换功能。
+- ☁️ **iCloud 同步**: 通过 iCloud 在多个 Mac 设备之间无缝同步您的提示词库，随时随地访问。
+- 🌐 **多语言支持**: 完整支持中文和英文界面，为不同语言用户提供最佳的使用体验。
+- 🔒 **隐私安全**: 所有数据默认本地存储，完全保护您的隐私，您的提示词只属于您自己。
+
+## 📦 下载
+
+您可以从 **[GitHub Releases](https://github.com/melon95/PromptPal/releases)** 页面或官方网站下载最新版本的 PromptPal。
+
+**[🚀 前往官网下载](https://promptpal.melon95.cn/zh/)**
 
 ## 🛠️ 开发环境
 
@@ -27,7 +50,7 @@
 
 ```bash
 # 克隆项目
-git clone <repository_url>
+git clone https://github.com/melon95/PromptPal.git
 cd PromptPal
 
 # 使用 Xcode 打开项目

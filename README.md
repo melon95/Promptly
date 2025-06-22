@@ -1,19 +1,42 @@
 # PromptPal
 
-A macOS application for managing and using AI prompts.
+[![Build Status](https://github.com/melon95/PromptPal/actions/workflows/build-macos.yml/badge.svg)](https://github.com/melon95/PromptPal/actions/workflows/build-macos.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Swift](https://img.shields.io/badge/Swift-5.9+-orange.svg)
+![macOS](https://img.shields.io/badge/macOS-15.5+-blue.svg)
+
+**A professional AI prompt management tool for macOS, designed to boost your AI workflow productivity.**
+
+PromptPal helps you efficiently manage, organize, and use AI prompts. Stop wasting time digging through notes and start building your personal, high-value prompt library.
 
 **Website: [https://promptpal.melon95.cn/](https://promptpal.melon95.cn/)**
 
 **[中文文档 / Chinese Documentation](README-zh.md)**
 
+## ✨ Screenshots
+
+| Main Interface                                     | Prompt Details                                     |
+| -------------------------------------------------- | -------------------------------------------------- |
+| ![Main Interface](https://promptpal.melon95.cn/screenshots/main-interface.png) | ![Prompt Details](https://promptpal.melon95.cn/screenshots/prompt-detail.png) |
+| **Category Management**                            | **App Settings**                                   |
+| ![Category Management](https://promptpal.melon95.cn/screenshots/category.png) | ![App Settings](https://promptpal.melon95.cn/screenshots/settings.png) |
+
 ## 🚀 Features
 
-- ✨ Clean prompt management interface
-- 🏷️ Tag system
-- 🔍 Quick search
-- 🌐 Multi-language support (Chinese/English)
-- 📋 One-click copy to clipboard
-- 🎨 Modern SwiftUI interface
+- ✨ **Clean Management Interface**: A modern interface built with SwiftUI, perfectly adapted to the macOS design language, supporting both light and dark modes.
+- 🔍 **Smart Search**: Real-time search through prompt content, titles, and tags to quickly find what you need and boost productivity.
+- 🏷️ **Flexible Category Management**: Supports custom categories and a tag system to organize prompts according to your workflow habits.
+- ⚡ **Global Hotkeys**: Customizable global hotkeys to quickly access the app without interrupting your current workflow.
+- 📋 **One-Click Copy**: Click to copy prompts to the clipboard, with intelligent replacement for parameterized prompts.
+- ☁️ **iCloud Sync**: Seamlessly sync your prompt library across multiple Mac devices via iCloud and access it anywhere.
+- 🌐 **Multi-language Support**: Complete support for Chinese and English interfaces.
+- 🔒 **Privacy & Security**: All data is stored locally by default, completely protecting your privacy. Your prompts belong only to you.
+
+## 📦 Download
+
+You can download the latest version of PromptPal from the **[GitHub Releases](https://github.com/melon95/PromptPal/releases)** page or from our official website.
+
+**[🚀 Download Now from Website](https://promptpal.melon95.cn/)**
 
 ## 🛠️ Development Environment
 
@@ -27,7 +50,7 @@ A macOS application for managing and using AI prompts.
 
 ```bash
 # Clone the project
-git clone <repository_url>
+git clone https://github.com/melon95/PromptPal.git
 cd PromptPal
 
 # Open project with Xcode
