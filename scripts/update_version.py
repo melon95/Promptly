@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Version Update Script
-Automatically update PromptPal project version numbers
+Automatically update Promptly project version numbers
 
 Usage:
   python3 scripts/update_version.py patch              # Increment patch version (1.0.0 -> 1.0.1)  
@@ -27,7 +27,7 @@ class VersionUpdater:
         else:
             self.project_root = Path(project_root)
         
-        self.pbxproj_path = self.project_root / "PromptPal.xcodeproj" / "project.pbxproj"
+        self.pbxproj_path = self.project_root / "Promptly.xcodeproj" / "project.pbxproj"
         
         if not self.pbxproj_path.exists():
             raise FileNotFoundError(f"Project file not found: {self.pbxproj_path}")

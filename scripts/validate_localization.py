@@ -16,7 +16,7 @@ SUPPORTED_LANGUAGES = ['en', 'zh-Hans']
 
 # Project root directory
 PROJECT_ROOT = Path(__file__).parent.parent
-RESOURCES_DIR = PROJECT_ROOT / 'PromptPal' / 'Resources'
+RESOURCES_DIR = PROJECT_ROOT / 'Promptly' / 'Resources'
 
 def parse_strings_file(file_path):
     """Parse .strings file and extract key-value pairs"""
@@ -135,7 +135,7 @@ def generate_missing_keys_template():
     
 def main():
     """Main function"""
-    print("🌍 PromptPal Localization Validation Tool")
+    print("🌍 Promptly Localization Validation Tool")
     print("="*50)
     
     if not RESOURCES_DIR.exists():

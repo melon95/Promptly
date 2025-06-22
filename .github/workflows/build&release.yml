@@ -1,4 +1,4 @@
-name: Build, Release and Upload PromptPal DMG
+name: Build, Release and Upload Promptly DMG
 
 on:
   push:
@@ -30,15 +30,15 @@ jobs:
       - name: Build and Archive App
         run: |
           xcodebuild archive \
-            -scheme PromptPal \
-            -archivePath ./build/PromptPal.xcarchive \
+            -scheme Promptly \
+            -archivePath ./build/Promptly.xcarchive \
             -sdk macosx \
             -configuration Release
 
       - name: Export .app from Archive
         run: |
           xcodebuild -exportArchive \
-            -archivePath ./build/PromptPal.xcarchive \
+            -archivePath ./build/Promptly.xcarchive \
             -exportPath ./build \
             -exportOptionsPlist ./ExportOptions.plist
 
@@ -49,21 +49,21 @@ jobs:
       - name: Create DMG
         run: |
           create-dmg \
-            --volname "PromptPal Installer" \
+            --volname "Promptly Installer" \
             --window-pos 200 120 \
             --window-size 800 400 \
             --icon-size 100 \
-            --icon "PromptPal.app" 200 190 \
-            --hide-extension "PromptPal.app" \
+            --icon "Promptly.app" 200 190 \
+            --hide-extension "Promptly.app" \
             --app-drop-link 600 185 \
-            "PromptPal.dmg" \
-            "build/PromptPal.app"
+            "Promptly.dmg" \
+            "build/Promptly.app"
 
       - name: Upload DMG Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: promptpal-dmg-artifact
-          path: PromptPal.dmg
+          name: Promptly-dmg-artifact
+          path: Promptly.dmg
 
 
   release:
@@ -80,13 +80,13 @@ jobs:
       - name: Download DMG Artifact
         uses: actions/download-artifact@v4
         with:
-          name: promptpal-dmg-artifact
+          name: Promptly-dmg-artifact
 
       - name: Create Release and Upload DMG
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: PromptPal.dmg
+          files: Promptly.dmg
           name: Release ${{ github.ref_name }}
           body: |
             New release based on tag ${{ github.ref_name }}.

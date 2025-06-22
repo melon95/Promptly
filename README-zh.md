@@ -1,15 +1,15 @@
-# PromptPal
+# Promptly
 
-[![构建状态](https://github.com/melon95/PromptPal/actions/workflows/build-macos.yml/badge.svg)](https://github.com/melon95/PromptPal/actions/workflows/build-macos.yml)
+[![构建状态](https://github.com/melon95/Promptly/actions/workflows/build-macos.yml/badge.svg)](https://github.com/melon95/Promptly/actions/workflows/build-macos.yml)
 [![许可证: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Swift](https://img.shields.io/badge/Swift-5.9+-orange.svg)
 ![macOS](https://img.shields.io/badge/macOS-15.5+-blue.svg)
 
 **一款专业的 AI 提示词管理工具，专为 macOS 设计，旨在提升您的 AI 工作流效率。**
 
-PromptPal 帮助您高效管理、组织和使用 AI 提示词。告别在繁杂笔记中寻找提示词的烦恼，开始构建您自己的高价值个人提示词库。
+Promptly 帮助您高效管理、组织和使用 AI 提示词。告别在繁杂笔记中寻找提示词的烦恼，开始构建您自己的高价值个人提示词库。
 
-**网站: [https://promptpal.melon95.cn/zh/](https://promptpal.melon95.cn/zh/)**
+**网站: [https://promptly.melon95.cn/zh/](https://promptly.melon95.cn/zh/)**
 
 **[English Documentation](README.md)**
 
@@ -17,9 +17,9 @@ PromptPal 帮助您高效管理、组织和使用 AI 提示词。告别在繁杂
 
 | 主界面                                     | 提示词详情                                     |
 | -------------------------------------------------- | -------------------------------------------------- |
-| ![主界面](https://promptpal.melon95.cn/screenshots/main-interface.png) | ![提示词详情](https://promptpal.melon95.cn/screenshots/prompt-detail.png) |
+| ![主界面](https://promptly.melon95.cn/screenshots/main-interface.png) | ![提示词详情](https://promptly.melon95.cn/screenshots/prompt-detail.png) |
 | **分类管理**                            | **应用设置**                                   |
-| ![分类管理](https://promptpal.melon95.cn/screenshots/category.png) | ![应用设置](https://promptpal.melon95.cn/screenshots/settings.png) |
+| ![分类管理](https://promptly.melon95.cn/screenshots/category.png) | ![应用设置](https://promptly.melon95.cn/screenshots/settings.png) |
 
 ## 🚀 功能特性
 
@@ -34,9 +34,9 @@ PromptPal 帮助您高效管理、组织和使用 AI 提示词。告别在繁杂
 
 ## 📦 下载
 
-您可以从 **[GitHub Releases](https://github.com/melon95/PromptPal/releases)** 页面或官方网站下载最新版本的 PromptPal。
+您可以从 **[GitHub Releases](https://github.com/melon95/Promptly/releases)** 页面或官方网站下载最新版本的 Promptly。
 
-**[🚀 前往官网下载](https://promptpal.melon95.cn/zh/)**
+**[🚀 前往官网下载](https://promptly.melon95.cn/zh/)**
 
 ## 🛠️ 开发环境
 
@@ -50,14 +50,14 @@ PromptPal 帮助您高效管理、组织和使用 AI 提示词。告别在繁杂
 
 ```bash
 # 克隆项目
-git clone https://github.com/melon95/PromptPal.git
-cd PromptPal
+git clone https://github.com/melon95/Promptly.git
+cd Promptly
 
 # 使用 Xcode 打开项目
-open PromptPal.xcodeproj
+open Promptly.xcodeproj
 
 # 或使用命令行构建
-xcodebuild -scheme PromptPal -destination 'platform=macOS' build
+xcodebuild -scheme Promptly -destination 'platform=macOS' build
 ```
 
 ## 🔄 CI/CD 流程
@@ -89,8 +89,8 @@ git push origin v1.0.0
 ## 📁 项目结构
 
 ```
-PromptPal/
-├── PromptPal/                    # 主应用代码
+Promptly/
+├── Promptly/                    # 主应用代码
 │   ├── Models/                   # 数据模型
 │   ├── Views/                    # SwiftUI 视图
 │   ├── Utilities/                # 工具类
@@ -112,7 +112,7 @@ PromptPal/
 
 ```bash
 # 运行所有测试
-xcodebuild -scheme PromptPal -destination 'platform=macOS' test
+xcodebuild -scheme Promptly -destination 'platform=macOS' test
 
 # 或使用脚本
 ./scripts/local-build-test.sh test
@@ -122,7 +122,7 @@ xcodebuild -scheme PromptPal -destination 'platform=macOS' test
 
 ```bash
 # 运行 UI 测试
-xcodebuild -scheme PromptPal -destination 'platform=macOS' test -only-testing:PromptPalUITests
+xcodebuild -scheme Promptly -destination 'platform=macOS' test -only-testing:PromptlyUITests
 ```
 
 ## 🐛 故障排除
@@ -141,7 +141,7 @@ xcodebuild -scheme PromptPal -destination 'platform=macOS' test -only-testing:Pr
 
 3. **依赖问题**
    ```bash
-   xcodebuild -resolvePackageDependencies -scheme PromptPal
+   xcodebuild -resolvePackageDependencies -scheme Promptly
    ```
 
 ### 获取帮助

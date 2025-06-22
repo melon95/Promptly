@@ -7,7 +7,7 @@ alwaysApply: false
 
 ## 功能优先级
 
-根据 [product-requirement.md](mdc:docs/product-requirement.md) 定义的优先级：
+根据 [product-requirement.md](mdc:docs/en/product-requirement.md) 定义的优先级：
 
 ### P0 - 核心功能 (MVP)
 
@@ -69,7 +69,7 @@ let regex = try! NSRegularExpression(pattern: "\\{\\{(.+?)\\}\\}")
 let cloudConfiguration = ModelConfiguration(
     "CloudStore", 
     schema: schema, 
-    cloudKitDatabase: .private("iCloud.com.yourcompany.PromptPal")
+    cloudKitDatabase: .private("iCloud.com.yourcompany.Promptly")
 )
 ```
 

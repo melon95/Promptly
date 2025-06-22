@@ -1,11 +1,11 @@
-Technical Design Document (TDD): PromptPal for macOS
+Technical Design Document (TDD): Promptly for macOS
 Version: 2.0
 Date: June 11, 2025
 Related Document: Product Requirement Document (PRD) v2.0
 
 1. Overview
 
-This document aims to provide a comprehensive technical implementation blueprint for the PromptPal for macOS application. Based on the features and goals defined in the Product Requirement Document (PRD), it elaborates on the system architecture, technology choices, data model design, and implementation strategies for core functionalities.
+This document aims to provide a comprehensive technical implementation blueprint for the Promptly for macOS application. Based on the features and goals defined in the Product Requirement Document (PRD), it elaborates on the system architecture, technology choices, data model design, and implementation strategies for core functionalities.
 
 2. System Architecture
 
@@ -202,7 +202,7 @@ final class Category: Identifiable {
         schema: schema, 
         isStoredInMemoryOnly: false, 
         allowsSave: true, 
-        cloudKitDatabase: .private("iCloud.com.yourcompany.PromptPal")
+        cloudKitDatabase: .private("iCloud.com.yourcompany.Promptly")
     )
 
     let container = try ModelContainer(for: schema, configurations: [cloudConfiguration])
@@ -216,8 +216,8 @@ final class Category: Identifiable {
     *   Support for languages like Simplified Chinese and English.
     *   Manage language switching logic in `LocalizationManager`.
 *   **Resource Files:**
-    *   `PromptPal/Resources/en.lproj/Localizable.strings`
-    *   `PromptPal/Resources/zh-Hans.lproj/Localizable.strings`
+    *   `Promptly/Resources/en.lproj/Localizable.strings`
+    *   `Promptly/Resources/zh-Hans.lproj/Localizable.strings`
 
 5.7. Parameterized Prompts (To Be Implemented)
 

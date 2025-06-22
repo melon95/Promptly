@@ -1,8 +1,8 @@
-# PromptPal Internationalization Feature Implementation
+# Promptly Internationalization Feature Implementation
 
 ## Overview
 
-PromptPal now supports multi-language internationalization to provide a localized user experience for global users.
+Promptly now supports multi-language internationalization to provide a localized user experience for global users.
 
 ## Supported Languages
 
@@ -27,7 +27,7 @@ PromptPal now supports multi-language internationalization to provide a localize
 
 3.  **Localization File Structure**
     ```
-    PromptPal/Resources/
+    Promptly/Resources/
     ├── en.lproj/Localizable.strings      # English
     └── zh-Hans.lproj/Localizable.strings # Simplified Chinese
     ```
@@ -117,13 +117,13 @@ The validation includes:
 ### Step 1: Create Localization Directory
 
 ```bash
-mkdir -p PromptPal/Resources/[language-code].lproj
+mkdir -p Promptly/Resources/[language-code].lproj
 ```
 
 ### Step 2: Copy and Translate the Strings File
 
 ```bash
-cp PromptPal/Resources/en.lproj/Localizable.strings PromptPal/Resources/[language-code].lproj/
+cp Promptly/Resources/en.lproj/Localizable.strings Promptly/Resources/[language-code].lproj/
 ```
 
 ### Step 3: Update LocalizationManager
@@ -185,14 +185,14 @@ Run the validation script to ensure translation integrity.
 
 ### Core Files
 
--   `PromptPal/Utilities/LocalizationManager.swift` - Localization Manager
--   `PromptPal/Views/LanguageSettingsView.swift` - Language Settings UI
--   `PromptPal/ContentView.swift` - Updated main view (with internationalization)
+-   `Promptly/Utilities/LocalizationManager.swift` - Localization Manager
+-   `Promptly/Views/LanguageSettingsView.swift` - Language Settings UI
+-   `Promptly/ContentView.swift` - Updated main view (with internationalization)
 
 ### Localization Files
 
--   `PromptPal/Resources/en.lproj/Localizable.strings` - English translations
--   `PromptPal/Resources/zh-Hans.lproj/Localizable.strings` - Simplified Chinese translations
+-   `Promptly/Resources/en.lproj/Localizable.strings` - English translations
+-   `Promptly/Resources/zh-Hans.lproj/Localizable.strings` - Simplified Chinese translations
 
 ### Tool Files
 

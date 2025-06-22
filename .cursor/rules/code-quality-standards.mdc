@@ -9,7 +9,7 @@ alwaysApply: false
 
 ### 文件组织
 ```
-PromptPal/
+Promptly/
 ├── Models/          # SwiftData 数据模型
 ├── Views/           # SwiftUI 视图组件
 ├── ViewModels/      # 视图模型 (如需要)
@@ -20,9 +20,9 @@ PromptPal/
 ```
 
 ### 关键文件
-- 应用入口: [PromptPalApp.swift](mdc:PromptPal/PromptPalApp.swift)
-- 主视图: [ContentView.swift](mdc:PromptPal/ContentView.swift)
-- 资产管理: [Assets.xcassets](mdc:PromptPal/Assets.xcassets)
+- 应用入口: [PromptlyApp.swift](mdc:Promptly/PromptlyApp.swift)
+- 主视图: [ContentView.swift](mdc:Promptly/ContentView.swift)
+- 资产管理: [Assets.xcassets](mdc:Promptly/Assets.xcassets)
 
 ## 代码风格规范
 
