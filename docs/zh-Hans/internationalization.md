@@ -1,8 +1,8 @@
-# PromptPal 国际化功能实现
+# Promptly 国际化功能实现
 
 ## 概述
 
-PromptPal 现已支持多语言国际化，为全球用户提供本地化的使用体验。
+Promptly 现已支持多语言国际化，为全球用户提供本地化的使用体验。
 
 ## 支持的语言
 
@@ -29,7 +29,7 @@ PromptPal 现已支持多语言国际化，为全球用户提供本地化的使�
 
 3. **本地化文件结构**
    ```
-   PromptPal/Resources/
+   Promptly/Resources/
    ├── en.lproj/Localizable.strings      # 英语
    └── zh-Hans.lproj/Localizable.strings # 简体中文
    ```
@@ -119,13 +119,13 @@ python3 scripts/validate_localization.py
 ### 步骤 1：创建本地化目录
 
 ```bash
-mkdir -p PromptPal/Resources/[language-code].lproj
+mkdir -p Promptly/Resources/[language-code].lproj
 ```
 
 ### 步骤 2：复制并翻译字符串文件
 
 ```bash
-cp PromptPal/Resources/en.lproj/Localizable.strings PromptPal/Resources/[language-code].lproj/
+cp Promptly/Resources/en.lproj/Localizable.strings Promptly/Resources/[language-code].lproj/
 ```
 
 ### 步骤 3：更新 LocalizationManager
@@ -187,14 +187,14 @@ var displayName: String {
 
 ### 核心文件
 
-- `PromptPal/Utilities/LocalizationManager.swift` - 本地化管理器
-- `PromptPal/Views/LanguageSettingsView.swift` - 语言设置界面
-- `PromptPal/ContentView.swift` - 更新后的主视图（含国际化）
+- `Promptly/Utilities/LocalizationManager.swift` - 本地化管理器
+- `Promptly/Views/LanguageSettingsView.swift` - 语言设置界面
+- `Promptly/ContentView.swift` - 更新后的主视图（含国际化）
 
 ### 本地化文件
 
-- `PromptPal/Resources/en.lproj/Localizable.strings` - 英语翻译
-- `PromptPal/Resources/zh-Hans.lproj/Localizable.strings` - 简体中文翻译
+- `Promptly/Resources/en.lproj/Localizable.strings` - 英语翻译
+- `Promptly/Resources/zh-Hans.lproj/Localizable.strings` - 简体中文翻译
 
 ### 工具文件
 

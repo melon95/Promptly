@@ -1,10 +1,10 @@
-Product Requirement Document (PRD): PromptPal for macOS
+Product Requirement Document (PRD): Promptly for macOS
 Version: 2.0
 Date: June 11, 2025
 
 1. Vision & Overview
 
-PromptPal for macOS is a native macOS application designed for developers, content creators, researchers, and any professional who frequently interacts with Large Language Models (LLMs). It aims to provide a centralized, efficient, and aesthetically pleasing platform for creating, organizing, searching, and quickly using various prompts.
+Promptly for macOS is a native macOS application designed for developers, content creators, researchers, and any professional who frequently interacts with Large Language Models (LLMs). It aims to provide a centralized, efficient, and aesthetically pleasing platform for creating, organizing, searching, and quickly using various prompts.
 
 The application will serve as the user's "Prompt Knowledge Base," liberating high-value prompts from scattered notes and chat histories. It will be seamlessly integrated into the user's workflow through an intuitive desktop application interface and keyboard shortcuts, offering an efficient prompt management experience.
 

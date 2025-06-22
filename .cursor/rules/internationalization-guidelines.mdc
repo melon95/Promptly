@@ -1,13 +1,13 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
 # 国际化 (i18n) 开发规范
 
 ## 支持的语言
 
-PromptPal 目前支持以下语言：
+Promptly 目前支持以下语言：
 
 - **English** (`en`) - 英语 (默认)
 - **简体中文** (`zh-Hans`) - 简体中文
@@ -16,7 +16,7 @@ PromptPal 目前支持以下语言：
 
 ### 目录组织
 ```
-PromptPal/Resources/
+Promptly/Resources/
 ├── en.lproj/
 │   └── Localizable.strings
 └── zh-Hans.lproj/
@@ -33,11 +33,11 @@ PromptPal/Resources/
 #### 分组规则
 ```swift
 // MARK: - 应用通用
-"app.name" = "PromptPal";
+"app.name" = "Promptly";
 "app.tagline" = "Your AI Prompt Companion";
 
 // MARK: - 菜单栏
-"menubar.show" = "Show PromptPal";
+"menubar.show" = "Show Promptly";
 "menubar.preferences" = "Preferences";
 
 // MARK: - Prompt 管理
@@ -172,53 +172,13 @@ struct MyView: View {
 
 ### 1. 创建本地化目录
 ```bash
-mkdir -p PromptPal/Resources/[language-code].lproj
+mkdir -p Promptly/Resources/[language-code].lproj
 ```
 
 ### 2. 复制并翻译字符串文件
 ```bash
-cp PromptPal/Resources/en.lproj/Localizable.strings PromptPal/Resources/[language-code].lproj/
+cp Promptly/Resources/en.lproj/Localizable.strings Promptly/Resources/[language-code].lproj/
 ```
 
 ### 3. 更新 LocalizationManager
-```swift
-enum SupportedLanguage: String, CaseIterable {
-    case english = "en"
-    case simplifiedChinese = "zh-Hans"
-    case newLanguage = "[language-code]"  // 添加新语言
-}
 ```
-
-### 4. 添加显示名称
-```swift
-var displayName: String {
-    switch self {
-    case .newLanguage:
-        return "Language Name"
-    // ... 其他情况
-    }
-}
-```
-
-## 测试和验证
-
-### 1. 本地化测试
-- 测试所有支持语言的界面显示
-- 验证文本布局和UI适配
-- 检查文本截断问题
-
-### 2. 伪本地化测试
-- 使用较长的文本测试UI弹性
-- 验证从右到左语言支持（如需要）
-
-### 3. 运行时语言切换测试
-- 验证语言切换后UI正确更新
-- 确认设置保存和恢复正常
-
-## 注意事项
-
-1. **性能考虑**：LocalizationManager 使用单例模式，避免重复创建
-2. **内存管理**：合理缓存本地化字符串，避免频繁文件读取
-3. **向后兼容**：添加新的本地化键时提供默认值
-4. **文本长度**：考虑不同语言的文本长度差异，设计弹性UI
-5. **文化适应**：不仅翻译文字，还要考虑文化差异和使用习惯

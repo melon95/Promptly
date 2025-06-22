@@ -1,15 +1,15 @@
-# PromptPal
+# Promptly
 
-[![Build Status](https://github.com/melon95/PromptPal/actions/workflows/build-macos.yml/badge.svg)](https://github.com/melon95/PromptPal/actions/workflows/build-macos.yml)
+[![Build Status](https://github.com/melon95/Promptly/actions/workflows/build-macos.yml/badge.svg)](https://github.com/melon95/Promptly/actions/workflows/build-macos.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Swift](https://img.shields.io/badge/Swift-5.9+-orange.svg)
 ![macOS](https://img.shields.io/badge/macOS-15.5+-blue.svg)
 
 **A professional AI prompt management tool for macOS, designed to boost your AI workflow productivity.**
 
-PromptPal helps you efficiently manage, organize, and use AI prompts. Stop wasting time digging through notes and start building your personal, high-value prompt library.
+Promptly helps you efficiently manage, organize, and use AI prompts. Stop wasting time digging through notes and start building your personal, high-value prompt library.
 
-**Website: [https://promptpal.melon95.cn/](https://promptpal.melon95.cn/)**
+**Website: [https://promptly.melon95.cn/](https://promptly.melon95.cn/)**
 
 **[中文文档 / Chinese Documentation](README-zh.md)**
 
@@ -17,9 +17,9 @@ PromptPal helps you efficiently manage, organize, and use AI prompts. Stop wasti
 
 | Main Interface                                     | Prompt Details                                     |
 | -------------------------------------------------- | -------------------------------------------------- |
-| ![Main Interface](https://promptpal.melon95.cn/screenshots/main-interface.png) | ![Prompt Details](https://promptpal.melon95.cn/screenshots/prompt-detail.png) |
+| ![Main Interface](https://promptly.melon95.cn/screenshots/main-interface.png) | ![Prompt Details](https://promptly.melon95.cn/screenshots/prompt-detail.png) |
 | **Category Management**                            | **App Settings**                                   |
-| ![Category Management](https://promptpal.melon95.cn/screenshots/category.png) | ![App Settings](https://promptpal.melon95.cn/screenshots/settings.png) |
+| ![Category Management](https://promptly.melon95.cn/screenshots/category.png) | ![App Settings](https://promptly.melon95.cn/screenshots/settings.png) |
 
 ## 🚀 Features
 
@@ -34,9 +34,9 @@ PromptPal helps you efficiently manage, organize, and use AI prompts. Stop wasti
 
 ## 📦 Download
 
-You can download the latest version of PromptPal from the **[GitHub Releases](https://github.com/melon95/PromptPal/releases)** page or from our official website.
+You can download the latest version of Promptly from the **[GitHub Releases](https://github.com/melon95/Promptly/releases)** page or from our official website.
 
-**[🚀 Download Now from Website](https://promptpal.melon95.cn/)**
+**[🚀 Download Now from Website](https://promptly.melon95.cn/)**
 
 ## 🛠️ Development Environment
 
@@ -50,14 +50,14 @@ You can download the latest version of PromptPal from the **[GitHub Releases](ht
 
 ```bash
 # Clone the project
-git clone https://github.com/melon95/PromptPal.git
-cd PromptPal
+git clone https://github.com/melon95/Promptly.git
+cd Promptly
 
 # Open project with Xcode
-open PromptPal.xcodeproj
+open Promptly.xcodeproj
 
 # Or build with command line
-xcodebuild -scheme PromptPal -destination 'platform=macOS' build
+xcodebuild -scheme Promptly -destination 'platform=macOS' build
 ```
 
 ## 🔄 CI/CD Workflow
@@ -89,8 +89,8 @@ git push origin v1.0.0
 ## 📁 Project Structure
 
 ```
-PromptPal/
-├── PromptPal/                    # Main application code
+Promptly/
+├── Promptly/                    # Main application code
 │   ├── Models/                   # Data models
 │   ├── Views/                    # SwiftUI views
 │   ├── Utilities/                # Utility classes
@@ -112,7 +112,7 @@ PromptPal/
 
 ```bash
 # Run all tests
-xcodebuild -scheme PromptPal -destination 'platform=macOS' test
+xcodebuild -scheme Promptly -destination 'platform=macOS' test
 
 # Or use script
 ./scripts/local-build-test.sh test
@@ -122,7 +122,7 @@ xcodebuild -scheme PromptPal -destination 'platform=macOS' test
 
 ```bash
 # Run UI tests
-xcodebuild -scheme PromptPal -destination 'platform=macOS' test -only-testing:PromptPalUITests
+xcodebuild -scheme Promptly -destination 'platform=macOS' test -only-testing:PromptlyUITests
 ```
 
 ## 🐛 Troubleshooting
@@ -141,7 +141,7 @@ xcodebuild -scheme PromptPal -destination 'platform=macOS' test -only-testing:Pr
 
 3. **Dependency Issues**
    ```bash
-   xcodebuild -resolvePackageDependencies -scheme PromptPal
+   xcodebuild -resolvePackageDependencies -scheme Promptly
    ```
 
 ### Getting Help

@@ -1,11 +1,11 @@
-技术设计文档 (TDD): PromptPal for macOS
+技术设计文档 (TDD): Promptly for macOS
 版本: 2.0
 日期: 2025 年 6 月 11 日
 关联文档: 产品需求文档 (PRD) v2.0
 
 1. 概述 (Overview)
 
-本文档旨在为 PromptPal for macOS 应用程序提供全面的技术实现蓝图。它基于产品需求文档 (PRD) 中定义的功能和目标，详细阐述了系统架构、技术选型、数据模型设计以及核心功能的实现策略。
+本文档旨在为 Promptly for macOS 应用程序提供全面的技术实现蓝图。它基于产品需求文档 (PRD) 中定义的功能和目标，详细阐述了系统架构、技术选型、数据模型设计以及核心功能的实现策略。
 
 2. 系统架构 (System Architecture)
 
@@ -223,7 +223,7 @@ let cloudConfiguration = ModelConfiguration(
     schema: schema, 
     isStoredInMemoryOnly: false, 
     allowsSave: true, 
-    cloudKitDatabase: .private("iCloud.com.yourcompany.PromptPal")
+    cloudKitDatabase: .private("iCloud.com.yourcompany.Promptly")
 )
 
 let container = try ModelContainer(for: schema, configurations: [cloudConfiguration])
@@ -238,8 +238,8 @@ let container = try ModelContainer(for: schema, configurations: [cloudConfigurat
 - 在 LocalizationManager 中管理语言切换逻辑。
 
 资源文件:
-- PromptPal/Resources/en.lproj/Localizable.strings
-- PromptPal/Resources/zh-Hans.lproj/Localizable.strings
+- Promptly/Resources/en.lproj/Localizable.strings
+- Promptly/Resources/zh-Hans.lproj/Localizable.strings
 
 5.7. 参数化 Prompts (待实现)
 
