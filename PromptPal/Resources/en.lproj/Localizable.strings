@@ -187,6 +187,11 @@
 "language.changed.restart" = "Restart App";
 "language.changed.later" = "Later";
 
+// MARK: - GitHub
+"github.title" = "GitHub";
+"github.description" = "View source code and more information";
+"github.visit" = "Visit GitHub";
+
 // MARK: - 其他
 "language.english" = "English";
 "language.chinese" = "简体中文";

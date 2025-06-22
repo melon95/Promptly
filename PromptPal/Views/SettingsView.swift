@@ -362,6 +362,32 @@ struct AboutRow: View {
                         .foregroundColor(.secondary)
                 }
             }
+            
+            // GitHub link row
+            HStack {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("github.title".localized)
+                            .fontWeight(.medium)
+                        Text("github.description".localized)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "link.circle")
+                        .foregroundColor(.black)
+                }
+                
+                Spacer()
+                
+                Button("github.visit".localized) {
+                    if let url = URL(string: "https://github.com/melon95/PromptPal") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+                .buttonStyle(.link)
+                .font(.caption)
+            }
         }
     }
 }
