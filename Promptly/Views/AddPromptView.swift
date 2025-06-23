@@ -5,8 +5,8 @@
 //  Created by Melon on 17/06/2025.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 // add/edit prompt view
 struct AddPromptView: View {
@@ -29,7 +29,7 @@ struct AddPromptView: View {
     @State private var title = ""
     @State private var description = ""
     @State private var userPrompt = ""
-    @State private var selectedCategory: Category? = nil
+    @State private var selectedCategory: Category?
     @State private var tags: [String] = []
     @State private var newTag = ""
     @State private var isFavorite = false
@@ -133,7 +133,7 @@ struct AddPromptView: View {
                 ForEach(0..<categories.count, id: \.self) { index in
                     Button(action: {
                         selectedCategory = categories[index]
-                    }) {
+                    }, label: {
                         HStack {
                             Circle()
                                 .fill(colorForCategory(categories[index].color))
@@ -141,7 +141,7 @@ struct AddPromptView: View {
                             
                             Text(categories[index].name)
                         }
-                    }
+                    })
                 }
             } label: {
                 HStack {

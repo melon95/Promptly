@@ -5,8 +5,8 @@
 //  Created by Melon on 17/06/2025.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 // main view
 struct MainView: View {
@@ -14,16 +14,16 @@ struct MainView: View {
     @Query private var prompts: [Prompt]
     @Query private var categories: [Category]
     
-    @State private var selectedCategory: Category? = nil
+    @State private var selectedCategory: Category?
     @State private var searchText = ""
     @State private var showingAddPrompt = false
     @State private var showingOnlyFavorites = false
     @State private var showingAddCategory = false
-    @State private var editingCategory: Category? = nil
+    @State private var editingCategory: Category?
     @State private var showingDeleteAlert = false
     @State private var showingCannotDeleteAlert = false
-    @State private var categoryToDelete: Category? = nil
-    @State private var categoryCannotDelete: Category? = nil
+    @State private var categoryToDelete: Category?
+    @State private var categoryCannotDelete: Category?
     @FocusState private var isSearchFocused: Bool
     
     // filtered prompts
@@ -122,6 +122,7 @@ struct MainView: View {
         }
         .onDisappear {
             // clean up notification listeners
+            // swiftlint:disable:next notification_center_detachment
             NotificationCenter.default.removeObserver(self)
         }
     }
@@ -186,11 +187,12 @@ struct MainView: View {
                                     categoryToDelete = category
                                     showingDeleteAlert = true
                                 }
+                            },
+                            action: {
+                                selectedCategory = category
+                                showingOnlyFavorites = false
                             }
-                        ) {
-                            selectedCategory = category
-                            showingOnlyFavorites = false
-                        }
+                        )
                     }
                 }
             }
