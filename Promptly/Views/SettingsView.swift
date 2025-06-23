@@ -62,7 +62,7 @@ struct AdvancedSettingsTab: View {
             HotkeySettingRow()
             
             // iCloud sync
-            iCloudSyncRow()
+            ICloudSyncRow()
             
             // about information
             Divider()
@@ -310,7 +310,7 @@ struct HotkeyEditRow: View {
 }
 
 // iCloud sync row
-struct iCloudSyncRow: View {
+struct ICloudSyncRow: View {
     @State private var iCloudSyncEnabled = true
     
     var body: some View {

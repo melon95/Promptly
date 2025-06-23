@@ -5,8 +5,8 @@
 //  Created by Melon on 17/06/2025.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ContentView: View {
     @Environment(\.openSettings) private var openSettings

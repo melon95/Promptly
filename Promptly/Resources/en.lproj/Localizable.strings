@@ -26,7 +26,7 @@
 "prompt.edit" = "Edit Prompt";
 "prompt.delete" = "Delete Prompt";
 "prompt.copy" = "Copy";
-"prompt.copied" = "Copied to clipboard";
+"prompt.copied" = "Copied";
 "prompt.title.placeholder" = "Enter prompt title...";
 "prompt.content.placeholder" = "Enter your prompt content here...";
 "prompt.save" = "Save";

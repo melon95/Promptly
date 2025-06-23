@@ -5,8 +5,8 @@
 //  Created by Melon on 17/06/2025.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct PromptlyApp: App {
@@ -14,9 +14,13 @@ struct PromptlyApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Prompt.self,
-            Category.self,
+            Category.self
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false
+            // cloudKitContainerName: ""
+        )
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])

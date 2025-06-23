@@ -5,8 +5,8 @@
 //  Created by Melon on 17/06/2025.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 // prompt card
 struct PromptCard: View {
@@ -16,6 +16,7 @@ struct PromptCard: View {
     
     @State private var isHovered = false
     @State private var showingEditSheet = false
+    @State private var showCopySuccessHint = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -112,6 +113,30 @@ struct PromptCard: View {
         .sheet(isPresented: $showingEditSheet) {
             AddPromptView(prompt: prompt)
         }
+        .overlay(
+            copySuccessHint
+                .allowsHitTesting(false)
+        )
+    }
+    
+    // copy success hint
+    @ViewBuilder
+    private var copySuccessHint: some View {
+        if showCopySuccessHint {
+            HStack(spacing: 8) {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+                Text("prompt.copied".localized)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+            }
+            .padding(.vertical, 10)
+            .padding(.horizontal, 16)
+            .background(.regularMaterial)
+            .cornerRadius(20)
+            .shadow(radius: 5)
+            .transition(.move(edge: .top).combined(with: .opacity))
+        }
     }
     
     // context menu items
@@ -168,7 +193,15 @@ struct PromptCard: View {
         pasteboard.clearContents()
         pasteboard.setString(prompt.userPrompt, forType: .string)
         
-        // TODO: show copy success hint
+        withAnimation(.spring()) {
+            showCopySuccessHint = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation(.spring()) {
+                showCopySuccessHint = false
+            }
+        }
     }
     
     // delete prompt

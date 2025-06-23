@@ -1,0 +1,39 @@
+# By default, SwiftLint rules are enabled.
+# You can disable rules selectively...
+disabled_rules:
+  - line_length # Lines should not span too many characters.
+  - trailing_whitespace # Files should not have trailing whitespace.
+  - vertical_whitespace # Limit vertical whitespace.
+  - identifier_name # Identifier names should only contain alphanumeric characters and start with a lowercase letter.
+  - nesting # Structs and classes should not be nested too deeply.
+  - function_body_length # Functions bodies should not be too long.
+  - type_body_length # Type bodies should not be too long.
+  - file_length # Files should not be too long.
+
+# ...or opt-in to rules that are disabled by default:
+opt_in_rules:
+  - empty_count # Prefer `isEmpty` over `count == 0`.
+  - explicit_init # Explicitly call `init()` on initializers.
+  - fatal_error_message # A fatal error should have a message.
+  - force_cast # Force casts should be avoided.
+  - force_try # Force tries should be avoided.
+  - redundant_nil_coalescing # Prefer `??` over `!= nil ? ... : ...`.
+  - sorted_imports # Imports should be sorted.
+
+# You can configure rules' severity and parameters:
+force_cast: warning # implicit
+force_try:
+  severity: warning # explicitly
+# implicitly
+line_length: 120
+
+# Paths to include during linting. `--path` is ignored if present.
+included:
+  - Promptly
+
+# Paths to ignore during linting. Takes precedence over `included`.
+excluded:
+  - Carthage
+  - Pods
+  - Promptly/Resources
+  - Promptly/Generated 
