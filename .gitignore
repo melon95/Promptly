@@ -103,3 +103,4 @@ build-report.txt
 # Temporary files
 *.log
 *.tmp 
+.DS_Store
