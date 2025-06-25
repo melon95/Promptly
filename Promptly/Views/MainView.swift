@@ -584,9 +584,18 @@ struct AddCategoryView: View {
                         .font(.headline)
                         .foregroundColor(.primary)
                     
-                    TextField("Enter category name...".localized, text: $categoryName)
-                        .textFieldStyle(.roundedBorder)
-                        .font(.body)
+                    HStack {
+                        TextField("Enter category name...".localized, text: $categoryName)
+                            .textFieldStyle(.plain)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color(NSColor.textBackgroundColor))
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                    )
                 }
                 
                 // color selection
@@ -609,6 +618,13 @@ struct AddCategoryView: View {
                                     )
                             }
                             .buttonStyle(.plain)
+                            .onHover { hovering in
+                                if hovering {
+                                    NSCursor.pointingHand.push()
+                                } else {
+                                    NSCursor.pop()
+                                }
+                            }
                         }
                     }
                 }
@@ -632,6 +648,13 @@ struct AddCategoryView: View {
                                     .cornerRadius(8)
                             }
                             .buttonStyle(.plain)
+                            .onHover { hovering in
+                                if hovering {
+                                    NSCursor.pointingHand.push()
+                                } else {
+                                    NSCursor.pop()
+                                }
+                            }
                         }
                     }
                 }
@@ -729,9 +752,18 @@ struct EditCategoryView: View {
                         .font(.headline)
                         .foregroundColor(.primary)
                     
-                    TextField("Enter category name...".localized, text: $categoryName)
-                        .textFieldStyle(.roundedBorder)
-                        .font(.body)
+                    HStack {
+                        TextField("Enter category name...".localized, text: $categoryName)
+                            .textFieldStyle(.plain)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color(NSColor.textBackgroundColor))
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                    )
                 }
                 
                 // color selection
@@ -754,6 +786,13 @@ struct EditCategoryView: View {
                                     )
                             }
                             .buttonStyle(.plain)
+                            .onHover { hovering in
+                                if hovering {
+                                    NSCursor.pointingHand.push()
+                                } else {
+                                    NSCursor.pop()
+                                }
+                            }
                         }
                     }
                 }
@@ -777,6 +816,13 @@ struct EditCategoryView: View {
                                     .cornerRadius(8)
                             }
                             .buttonStyle(.plain)
+                            .onHover { hovering in
+                                if hovering {
+                                    NSCursor.pointingHand.push()
+                                } else {
+                                    NSCursor.pop()
+                                }
+                            }
                         }
                     }
                 }

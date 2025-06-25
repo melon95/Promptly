@@ -98,9 +98,18 @@ struct AddPromptView: View {
                 .font(.headline)
                 .foregroundColor(.primary)
             
-            TextField("Enter prompt title...".localized, text: $title)
-                .textFieldStyle(.roundedBorder)
-                .font(.body)
+            HStack {
+                TextField("Enter prompt title...".localized, text: $title)
+                    .textFieldStyle(.plain)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color(NSColor.textBackgroundColor))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+            )
         }
     }
     
@@ -111,10 +120,19 @@ struct AddPromptView: View {
                 .font(.headline)
                 .foregroundColor(.primary)
             
-            TextField("Enter description (optional)...".localized, text: $description, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
-                .lineLimit(3...6)
-                .font(.body)
+            HStack(alignment: .top) {
+                TextField("Enter description (optional)...".localized, text: $description, axis: .vertical)
+                    .textFieldStyle(.plain)
+                    .lineLimit(3...6)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color(NSColor.textBackgroundColor))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+            )
         }
     }
     
@@ -145,26 +163,39 @@ struct AddPromptView: View {
                 }
             } label: {
                 HStack {
+                    Image(systemName: "folder")
+                        .foregroundColor(.secondary)
+                    
                     if let category = selectedCategory {
-                        Circle()
-                            .fill(colorForCategory(category.color))
-                            .frame(width: 12, height: 12)
-                        
-                        Text(category.name)
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(colorForCategory(category.color))
+                                .frame(width: 12, height: 12)
+                            
+                            Text(category.name)
+                                .foregroundColor(.primary)
+                        }
                     } else {
                         Text("Select Category".localized)
+                            .foregroundColor(.secondary)
                     }
                     
                     Spacer()
                     
                     Image(systemName: "chevron.down")
                         .foregroundColor(.secondary)
+                        .font(.caption)
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(Color(NSColor.controlBackgroundColor))
-                .cornerRadius(6)
+                .background(Color(NSColor.textBackgroundColor))
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                )
             }
+            .buttonStyle(.plain)
         }
     }
     
@@ -177,18 +208,33 @@ struct AddPromptView: View {
             
             // add new tag input field
             HStack {
+                Image(systemName: "tag")
+                    .foregroundColor(.secondary)
+                
                 TextField("Add tag...".localized, text: $newTag)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(.plain)
                     .focused($isNewTagFocused)
                     .onSubmit {
                         addTag()
                     }
                 
-                Button("Add".localized) {
+                Button {
                     addTag()
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundColor(.blue)
                 }
+                .buttonStyle(.plain)
                 .disabled(newTag.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color(NSColor.textBackgroundColor))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+            )
             
             // existing tags (displayed below the input field)
             if !tags.isEmpty {
@@ -212,23 +258,43 @@ struct AddPromptView: View {
                 .font(.headline)
                 .foregroundColor(.primary)
             
-            TextEditor(text: $userPrompt)
-                .font(.system(.body, design: .monospaced))
-                .padding(12)
-                .background(Color(NSColor.controlBackgroundColor))
-                .cornerRadius(8)
-                .frame(minHeight: 200)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
-                )
+            ZStack(alignment: .topLeading) {
+                TextEditor(text: $userPrompt)
+                    .font(.system(.body, design: .monospaced))
+                    .scrollContentBackground(.hidden)
+                
+                if userPrompt.isEmpty {
+                    Text("Enter your prompt here...".localized)
+                        .foregroundColor(Color(NSColor.placeholderTextColor))
+                        .font(.system(.body, design: .monospaced))
+                        .padding(.leading, 5) 
+                        .padding(.top, 0)
+                        .allowsHitTesting(false)
+                }
+            }
+            .padding(12)
+            .frame(minHeight: 200)
+            .background(Color(NSColor.textBackgroundColor))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+            )
         }
     }
     
     // favorite option area
     private var favoriteSection: some View {
-        Toggle("Add to Favorites".localized, isOn: $isFavorite)
-            .font(.headline)
+        HStack {
+            Image(systemName: "heart")
+                .foregroundColor(.secondary)
+            
+            Toggle("Add to Favorites".localized, isOn: $isFavorite)
+                .toggleStyle(SwitchToggleStyle(tint: .blue))
+                .font(.body)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 0)
     }
     
     // load prompt data (edit mode)
