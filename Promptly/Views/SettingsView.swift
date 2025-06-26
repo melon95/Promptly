@@ -334,58 +334,27 @@ struct ICloudSyncRow: View {
     }
 }
 
+
 // about row
 struct AboutRow: View {
     var body: some View {
-        VStack(spacing: 12) {
-            HStack {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("app.name".localized)
-                            .fontWeight(.medium)
-                        Text("app.tagline".localized)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                } icon: {
-                    Image(systemName: "info.circle")
-                        .foregroundColor(.gray)
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(VersionManager.shared.getFormattedVersion())
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
+        HStack {
+            Image(systemName: "info.circle")
+                .foregroundColor(.blue)
             
-            // GitHub link row
-            HStack {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("github.title".localized)
-                            .fontWeight(.medium)
-                        Text("github.description".localized)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                } icon: {
-                    Image(systemName: "link.circle")
-                        .foregroundColor(.black)
-                }
-                
-                Spacer()
-                
-                Button("github.visit".localized) {
-                    if let url = URL(string: "https://github.com/melon95/Promptly") {
-                        NSWorkspace.shared.open(url)
-                    }
-                }
-                .buttonStyle(.link)
-                .font(.caption)
+            VStack(alignment: .leading) {
+                Text(VersionProvider.appName)
+                    .fontWeight(.semibold)
+                Text(VersionProvider.getFormattedVersion(includesBuild: true))
+                    .foregroundColor(.secondary)
             }
+            .font(.caption)
+            
+            Spacer()
+            
+            Text(VersionProvider.copyright)
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
     }
 }

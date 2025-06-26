@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 // hotkey manager
+@MainActor
 class HotkeyManager: ObservableObject {
     static let shared = HotkeyManager()
     

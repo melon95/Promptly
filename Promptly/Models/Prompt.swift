@@ -65,24 +65,4 @@ final class Prompt {
         self.updatedAt = now
         self.usageCount = 0
     }
-}
-
-// Category data model - now the only category system
-@Model
-final class Category: Identifiable {
-    var id: UUID
-    var name: String
-    var color: String
-    var iconName: String
-    var isDefault: Bool
-    var createdAt: Date
-    
-    init(name: String, color: String = "blue", iconName: String = "folder", isDefault: Bool = false) {
-        self.id = UUID()
-        self.name = name
-        self.color = color
-        self.iconName = iconName
-        self.isDefault = isDefault
-        self.createdAt = Date()
-    }
 } 

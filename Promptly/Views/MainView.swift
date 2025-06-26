@@ -85,13 +85,13 @@ struct MainView: View {
             }
         }
         .sheet(isPresented: $showingAddPrompt) {
-            AddPromptView()
+            PromptEditorView()
         }
         .sheet(isPresented: $showingAddCategory) {
-            AddCategoryView()
+            CategoryEditorView()
         }
         .sheet(item: $editingCategory) { category in
-            EditCategoryView(category: category)
+            CategoryEditorView(category: category)
         }
         .alert("Delete Category".localized, isPresented: $showingDeleteAlert) {
             Button("Cancel".localized, role: .cancel) { }
@@ -352,9 +352,16 @@ struct CategoryRow: View {
     var body: some View {
         Button(action: action) {
             HStack {
-                Circle()
-                    .fill(colorForCategory(category.color))
-                    .frame(width: 12, height: 12)
+                // Display Emoji or SF Symbol
+                if let firstChar = category.iconName.first, String(firstChar).emojis == String(firstChar) {
+                    Text(category.iconName)
+                        .frame(width: 16, height: 16)
+                } else {
+                    Image(systemName: category.iconName)
+                        .font(.body)
+                        .frame(width: 16, height: 16)
+                        .foregroundColor(colorForName(category.color))
+                }
                 
                 Text(category.name)
                     .fontWeight(isSelected ? .semibold : .regular)
@@ -385,18 +392,6 @@ struct CategoryRow: View {
             } else {
                 NSCursor.pop()
             }
-        }
-    }
-    
-    private func colorForCategory(_ colorName: String) -> Color {
-        switch colorName {
-        case "blue": return .blue
-        case "green": return .green
-        case "orange": return .orange
-        case "pink": return .pink
-        case "red": return .red
-        case "gray": return .gray
-        default: return .gray
         }
     }
 }
@@ -495,38 +490,49 @@ extension MainView {
         NotificationCenter.default.addObserver(
             forName: .showAddPrompt,
             object: nil,
-            queue: .main
+            queue: nil // 在任意线程监听
         ) { _ in
-            showingAddPrompt = true
+            // 切换到主线程来更新UI状态
+            Task { @MainActor in
+                self.showingAddPrompt = true
+            }
         }
         
         // listen to show favorites shortcut
         NotificationCenter.default.addObserver(
             forName: .showFavorites,
             object: nil,
-            queue: .main
+            queue: nil // 在任意线程监听
         ) { _ in
-            showingOnlyFavorites = true
-            selectedCategory = nil
+            // 切换到主线程来更新UI状态
+            Task { @MainActor in
+                self.showingOnlyFavorites = true
+                self.selectedCategory = nil
+            }
         }
         
         // listen to search field focus shortcut
         NotificationCenter.default.addObserver(
             forName: .focusSearch,
             object: nil,
-            queue: .main
+            queue: nil // 在任意线程监听
         ) { _ in
-            isSearchFocused = true
+            // 切换到主线程来更新UI状态
+            Task { @MainActor in
+                self.isSearchFocused = true
+            }
         }
         
         // listen to quick access switch
         NotificationCenter.default.addObserver(
             forName: .toggleQuickAccess,
             object: nil,
-            queue: .main
+            queue: nil // 在任意线程监听
         ) { _ in
-            // implement quick access function - can show a floating window
-            showQuickAccessWindow()
+            // 切换到主线程来调用主线程方法
+            Task { @MainActor in
+                self.showQuickAccessWindow()
+            }
         }
     }
     
@@ -557,325 +563,5 @@ extension MainView {
     // 检查分类是否被使用
     private func isCategoryInUse(_ category: Category) -> Bool {
         return prompts.contains { $0.category?.id == category.id }
-    }
-}
-
-// MARK: - Add Category View
-struct AddCategoryView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
-    @State private var categoryName = ""
-    @State private var selectedColor: String = "blue"
-    @State private var selectedIcon: String = "folder"
-    
-    private let availableColors = ["blue", "green", "orange", "pink", "red", "gray"]
-    private let availableIcons = ["folder", "pencil", "chevron.left.forwardslash.chevron.right", "megaphone", "paintbrush", "briefcase", "star", "heart", "bookmark", "tag"]
-    
-    private var canSave: Bool {
-        !categoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-    
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 24) {
-                // category name input
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Category Name".localized)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    
-                    HStack {
-                        TextField("Enter category name...".localized, text: $categoryName)
-                            .textFieldStyle(.plain)
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(Color(NSColor.textBackgroundColor))
-                    .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
-                    )
-                }
-                
-                // color selection
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Color".localized)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 12) {
-                        ForEach(availableColors, id: \.self) { color in
-                            Button {
-                                selectedColor = color
-                            } label: {
-                                Circle()
-                                    .fill(colorForName(color))
-                                    .frame(width: 32, height: 32)
-                                    .overlay(
-                                        Circle()
-                                            .stroke(selectedColor == color ? Color.primary : Color.clear, lineWidth: 2)
-                                    )
-                            }
-                            .buttonStyle(.plain)
-                            .onHover { hovering in
-                                if hovering {
-                                    NSCursor.pointingHand.push()
-                                } else {
-                                    NSCursor.pop()
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // icon selection
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Icon".localized)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 12) {
-                        ForEach(availableIcons, id: \.self) { icon in
-                            Button {
-                                selectedIcon = icon
-                            } label: {
-                                Image(systemName: icon)
-                                    .font(.title2)
-                                    .frame(width: 44, height: 44)
-                                    .background(selectedIcon == icon ? Color.blue.opacity(0.1) : Color.clear)
-                                    .foregroundColor(selectedIcon == icon ? .blue : .primary)
-                                    .cornerRadius(8)
-                            }
-                            .buttonStyle(.plain)
-                            .onHover { hovering in
-                                if hovering {
-                                    NSCursor.pointingHand.push()
-                                } else {
-                                    NSCursor.pop()
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                Spacer()
-            }
-            .padding(24)
-            .navigationTitle("New Category".localized)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel".localized) {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save".localized) {
-                        saveCategory()
-                    }
-                    .disabled(!canSave)
-                }
-            }
-        }
-        .frame(width: 400, height: 500)
-    }
-    
-    private func colorForName(_ colorName: String) -> Color {
-        switch colorName {
-        case "blue": return .blue
-        case "green": return .green
-        case "orange": return .orange
-        case "pink": return .pink
-        case "red": return .red
-        case "gray": return .gray
-        default: return .gray
-        }
-    }
-    
-    private func saveCategory() {
-        let trimmedName = categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        // 创建新的自定义分类
-        let newCategory = Category(
-            name: trimmedName,
-            color: selectedColor,
-            iconName: selectedIcon,
-            isDefault: false
-        )
-        
-        // 保存到数据库
-        modelContext.insert(newCategory)
-        
-        do {
-            try modelContext.save()
-            print("New category saved: \(trimmedName)")
-        } catch {
-            print("Failed to save category: \(error)")
-        }
-        
-        dismiss()
-    }
-}
-
-// MARK: - Edit Category View
-struct EditCategoryView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
-    
-    let category: Category
-    
-    @State private var categoryName: String
-    @State private var selectedColor: String 
-    @State private var selectedIcon: String
-    
-    private let availableColors = ["blue", "green", "orange", "pink", "red", "gray"]
-    private let availableIcons = ["folder", "pencil", "chevron.left.forwardslash.chevron.right", "megaphone", "paintbrush", "briefcase", "star", "heart", "bookmark", "tag"]
-    
-    init(category: Category) {
-        self.category = category
-        self._categoryName = State(initialValue: category.name)
-        self._selectedColor = State(initialValue: category.color)
-        self._selectedIcon = State(initialValue: category.iconName)
-    }
-    
-    private var canSave: Bool {
-        !categoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-    
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 24) {
-                // category name input
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Category Name".localized)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    
-                    HStack {
-                        TextField("Enter category name...".localized, text: $categoryName)
-                            .textFieldStyle(.plain)
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(Color(NSColor.textBackgroundColor))
-                    .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
-                    )
-                }
-                
-                // color selection
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Color".localized)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 12) {
-                        ForEach(availableColors, id: \.self) { color in
-                            Button {
-                                selectedColor = color
-                            } label: {
-                                Circle()
-                                    .fill(colorForName(color))
-                                    .frame(width: 32, height: 32)
-                                    .overlay(
-                                        Circle()
-                                            .stroke(selectedColor == color ? Color.primary : Color.clear, lineWidth: 2)
-                                    )
-                            }
-                            .buttonStyle(.plain)
-                            .onHover { hovering in
-                                if hovering {
-                                    NSCursor.pointingHand.push()
-                                } else {
-                                    NSCursor.pop()
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // icon selection
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Icon".localized)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 12) {
-                        ForEach(availableIcons, id: \.self) { icon in
-                            Button {
-                                selectedIcon = icon
-                            } label: {
-                                Image(systemName: icon)
-                                    .font(.title2)
-                                    .frame(width: 44, height: 44)
-                                    .background(selectedIcon == icon ? Color.blue.opacity(0.1) : Color.clear)
-                                    .foregroundColor(selectedIcon == icon ? .blue : .primary)
-                                    .cornerRadius(8)
-                            }
-                            .buttonStyle(.plain)
-                            .onHover { hovering in
-                                if hovering {
-                                    NSCursor.pointingHand.push()
-                                } else {
-                                    NSCursor.pop()
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                Spacer()
-            }
-            .padding(24)
-            .navigationTitle("Edit Category".localized)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel".localized) {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save".localized) {
-                        saveCategory()
-                    }
-                    .disabled(!canSave)
-                }
-            }
-        }
-        .frame(width: 400, height: 500)
-    }
-    
-    private func colorForName(_ colorName: String) -> Color {
-        switch colorName {
-        case "blue": return .blue
-        case "green": return .green
-        case "orange": return .orange
-        case "pink": return .pink
-        case "red": return .red
-        case "gray": return .gray
-        default: return .gray
-        }
-    }
-    
-    private func saveCategory() {
-        let trimmedName = categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        // 更新分类属性
-        category.name = trimmedName
-        category.color = selectedColor
-        category.iconName = selectedIcon
-        
-        do {
-            try modelContext.save()
-            print("Category updated successfully")
-        } catch {
-            print("Failed to update category: \(error)")
-        }
-        
-        dismiss()
     }
 }

@@ -7,19 +7,53 @@
 
 import Foundation
 import SwiftUI
+import os
 
-// localization manager, handle multi-language support
+// MARK: - Global Localization State
+
+/// A thread-safe wrapper around a `Bundle` instance for localization.
+/// This class uses a lock to provide safe mutable access to the bundle
+/// from concurrent environments and conforms to `Sendable`.
+final class ThreadSafeBundle: @unchecked Sendable {
+    private var bundle: Bundle
+    private let lock = OSAllocatedUnfairLock()
+
+    init(_ bundle: Bundle = .main) {
+        self.bundle = bundle
+    }
+
+    func update(to newBundle: Bundle) {
+        lock.withLock {
+            self.bundle = newBundle
+        }
+    }
+
+    func localizedString(forKey key: String, value: String?, table: String?) -> String {
+        lock.withLock {
+            self.bundle.localizedString(forKey: key, value: value, table: table)
+        }
+    }
+}
+
+let currentBundle = ThreadSafeBundle()
+
+// MARK: - LocalizationManager
+/// Manages the application's language settings and coordinates UI updates.
+///
+/// This class is isolated to the main actor to safely handle user interactions
+/// and publish changes to the UI.
+@MainActor
 class LocalizationManager: ObservableObject {
     static let shared = LocalizationManager()
     
-    // supported languages list
+    /// The list of languages supported by the application.
     enum SupportedLanguage: String, CaseIterable, Identifiable {
         case english = "en"
         case simplifiedChinese = "zh-Hans"
         
         var id: String { rawValue }
         
-        // language display name
+        /// The name of the language in its own locale.
         var displayName: String {
             switch self {
             case .english:
@@ -29,7 +63,7 @@ class LocalizationManager: ObservableObject {
             }
         }
         
-        // localized display name
+        /// The localized name of the language for display in the UI.
         var localizedDisplayName: String {
             switch self {
             case .english:
@@ -40,105 +74,84 @@ class LocalizationManager: ObservableObject {
         }
     }
     
+    /// The currently selected language, published for SwiftUI views to observe.
     @Published var currentLanguage: SupportedLanguage {
         didSet {
             UserDefaults.standard.set(currentLanguage.rawValue, forKey: "selected_language")
             updateCurrentBundle()
-            // 通知需要重启应用以完全应用语言更改
+            // Notify the user that a restart is needed to fully apply the language change.
             showRestartAlert()
         }
     }
     
+    /// A flag to control the visibility of the restart alert, published for SwiftUI views.
     @Published var showingRestartAlert = false
     
-    private var currentBundle: Bundle = Bundle.main
-    
     private init() {
-        // read language selection from user preferences
-        let savedLanguage = UserDefaults.standard.string(forKey: "selected_language") ?? ""
-        self.currentLanguage = SupportedLanguage(rawValue: savedLanguage) ?? .english
+        let savedLanguageCode = UserDefaults.standard.string(forKey: "selected_language") ?? ""
+        self.currentLanguage = SupportedLanguage(rawValue: savedLanguageCode) ?? .english
         updateCurrentBundle()
     }
     
-    // update current bundle
+    /// Updates the global `currentLocalizationBundle` based on the selected language.
     private func updateCurrentBundle() {
+        let targetBundle: Bundle
         if let path = Bundle.main.path(forResource: currentLanguage.rawValue, ofType: "lproj"),
            let bundle = Bundle(path: path) {
-            currentBundle = bundle
+            targetBundle = bundle
         } else {
-            currentBundle = Bundle.main
+            targetBundle = .main
         }
+        
+        // Safely update the global bundle.
+        currentBundle.update(to: targetBundle)
     }
     
-    // get localized string
-    // - Parameters:
-    //   - key: localized key
-    //   - defaultValue: default value
-    //   - comment: comment
-    // - Returns: localized string
-    func localizedString(forKey key: String, defaultValue: String = "", comment: String = "") -> String {
-        return currentBundle.localizedString(forKey: key, value: defaultValue, table: nil)
-    }
-    
-    // get localized string with arguments
-    // - Parameters:
-    //   - key: localized key
-    //   - arguments: arguments
-    // - Returns: localized string
-    func localizedString(forKey key: String, arguments: CVarArg...) -> String {
-        let format = localizedString(forKey: key, defaultValue: key, comment: "")
-        return String(format: format, arguments: arguments)
-    }
-    
-    // 显示重启提示
+    /// Shows a restart alert to the user.
     private func showRestartAlert() {
-        // 延迟一点时间显示提示，让UI有时间更新
+        // A slight delay ensures the UI has time to update before presenting the alert.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.showingRestartAlert = true
         }
     }
     
-    // 重启应用
+    /// Terminates the application to apply changes.
     func restartApplication() {
         NSApplication.shared.terminate(nil)
     }
 }
 
+// MARK: - String Extension
 // String extension, provide convenient localization methods
 extension String {
-    // get localized string
+    /// Returns a localized version of the string.
+    ///
+    /// This computed property safely looks up the string in the currently selected language bundle.
     var localized: String {
-        return LocalizationManager.shared.localizedString(forKey: self, defaultValue: self)
+        currentBundle.localizedString(forKey: self, value: self, table: nil)
     }
     
-    // get localized string with arguments
-    // - Parameter arguments: arguments
-    // - Returns: localized string
+    /// Returns a localized, formatted string with the given arguments.
     func localized(with arguments: CVarArg...) -> String {
-        let format = LocalizationManager.shared.localizedString(forKey: self, defaultValue: self, comment: "")
+        let format = currentBundle.localizedString(forKey: self, value: self, table: nil)
         return String(format: format, arguments: arguments)
     }
     
-    // get localized string with default value
-    // - Parameter defaultValue: default value
-    // - Returns: localized string
+    /// Returns a localized string, using a default value if the key is not found.
     func localized(defaultValue: String) -> String {
-        return LocalizationManager.shared.localizedString(forKey: self, defaultValue: defaultValue)
+        currentBundle.localizedString(forKey: self, value: defaultValue, table: nil)
     }
 }
 
+// MARK: - SwiftUI Text Extension
 // SwiftUI Text view localization extension
 extension Text {
-    // create localized Text view
-    // - Parameter key: localized key
+    /// Creates a `Text` view that displays a localized string.
     init(localized key: String) {
         self.init(key.localized)
     }
     
-    // create localized Text view with default value
-    // - Parameters:
-    //   - key: localized key
-    //   - defaultValue: default value
+    /// Creates a `Text` view that displays a localized string with a default value.
     init(localized key: String, defaultValue: String) {
         self.init(key.localized(defaultValue: defaultValue))
     }

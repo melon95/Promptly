@@ -1,5 +1,5 @@
 //
-//  AddPromptView.swift
+//  PromptEditorView.swift
 //  Promptly
 //
 //  Created by Melon on 17/06/2025.
@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 
 // add/edit prompt view
-struct AddPromptView: View {
+struct PromptEditorView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Query private var categories: [Category]
@@ -148,34 +148,21 @@ struct AddPromptView: View {
                     selectedCategory = nil
                 }
                 
-                ForEach(0..<categories.count, id: \.self) { index in
-                    Button(action: {
-                        selectedCategory = categories[index]
-                    }, label: {
-                        HStack {
-                            Circle()
-                                .fill(colorForCategory(categories[index].color))
-                                .frame(width: 12, height: 12)
-                            
-                            Text(categories[index].name)
-                        }
-                    })
+                ForEach(categories) { category in
+                    Button {
+                        selectedCategory = category
+                    } label: {
+                        CategoryRowMenu(category: category)
+                    }
                 }
             } label: {
                 HStack {
-                    Image(systemName: "folder")
-                        .foregroundColor(.secondary)
-                    
                     if let category = selectedCategory {
-                        HStack(spacing: 6) {
-                            Circle()
-                                .fill(colorForCategory(category.color))
-                                .frame(width: 12, height: 12)
-                            
-                            Text(category.name)
-                                .foregroundColor(.primary)
-                        }
+                        CategoryRow(category: category)
+                            .foregroundColor(.primary)
                     } else {
+                        Image(systemName: "folder")
+                            .foregroundColor(.secondary)
                         Text("Select Category".localized)
                             .foregroundColor(.secondary)
                     }
@@ -196,6 +183,7 @@ struct AddPromptView: View {
                 )
             }
             .buttonStyle(.plain)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
     
@@ -267,7 +255,7 @@ struct AddPromptView: View {
                     Text("Enter your prompt here...".localized)
                         .foregroundColor(Color(NSColor.placeholderTextColor))
                         .font(.system(.body, design: .monospaced))
-                        .padding(.leading, 5) 
+                        .padding(.leading, 5)
                         .padding(.top, 0)
                         .allowsHitTesting(false)
                 }
@@ -357,16 +345,43 @@ struct AddPromptView: View {
         }
     }
     
-    // get color for category
-    private func colorForCategory(_ colorName: String) -> Color {
-        switch colorName {
-        case "blue": return .blue
-        case "green": return .green
-        case "orange": return .orange
-        case "pink": return .pink
-        case "red": return .red
-        case "gray": return .gray
-        default: return .gray
+    // category row with icon
+    private struct CategoryRowMenu: View {
+        let category: Category
+        
+        var body: some View {
+            HStack(spacing: 8) {
+                // Display Emoji or SF Symbol
+                if let firstChar = category.iconName.first, String(firstChar).emojis == String(firstChar) {
+                    Text(category.iconName + "  " + category.name)
+                        .frame(width: 16, height: 16)
+                } else {
+                    Image(systemName: category.iconName)
+                        .frame(width: 16, height: 16)
+                        .foregroundColor(colorForName(category.color))
+                    Text(category.name)
+                }
+            }
+        }
+    }
+
+    private struct CategoryRow: View {
+        let category: Category
+        
+        var body: some View {
+            HStack(spacing: 8) {
+                // Display Emoji or SF Symbol
+                if let firstChar = category.iconName.first, String(firstChar).emojis == String(firstChar) {
+                    Text(category.iconName)
+                        .frame(width: 16, height: 16)
+
+                } else {
+                    Image(systemName: category.iconName)
+                        .frame(width: 16, height: 16)
+                        .foregroundColor(colorForName(category.color))
+                }
+                Text(category.name)
+            }
         }
     }
 }
@@ -397,5 +412,3 @@ struct TagChip: View {
         .cornerRadius(16)
     }
 }
-
- 

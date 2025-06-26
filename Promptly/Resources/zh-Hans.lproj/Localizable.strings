@@ -172,6 +172,10 @@
 "Enter category name..." = "输入分类名称...";
 "Color" = "颜色";
 "Icon" = "图标";
+"Custom Color" = "自定义颜色";
+"Choose Color" = "选择颜色";
+"Apply" = "应用";
+"Choose Custom Color" = "选择自定义颜色";
 "Edit Category" = "编辑分类";
 "Delete Category" = "删除分类";
 "Are you sure you want to delete the category \"%@\"?" = "您确定要删除分类\"%@\"吗？";
