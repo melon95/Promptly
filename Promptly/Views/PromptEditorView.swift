@@ -162,9 +162,9 @@ struct PromptEditorView: View {
                             .foregroundColor(.primary)
                     } else {
                         Image(systemName: "folder")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Color(NSColor.placeholderTextColor))
                         Text("Select Category".localized)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Color(NSColor.placeholderTextColor))
                     }
                     
                     Spacer()
