@@ -5,23 +5,23 @@
   Created by Melon on 17/06/2025.
 */
 
-// MARK: - 应用通用
+// MARK: - App General
 "app.name" = "Promptly";
 "app.tagline" = "Your AI Prompt Companion";
 
-// MARK: - 菜单栏
+// MARK: - Menu Bar
 "menubar.show" = "Show Promptly";
 "menubar.hide" = "Hide Promptly";
 "menubar.preferences" = "Preferences";
 "menubar.quit" = "Quit Promptly";
 
-// MARK: - 主界面
+// MARK: - Main View
 "main.search.placeholder" = "Search prompts...";
 "main.no_prompts" = "No prompts found";
 "main.empty.title" = "Welcome to Promptly";
 "main.empty.subtitle" = "Create your first prompt to get started";
 
-// MARK: - Prompt 管理
+// MARK: - Prompt Management
 "prompt.new" = "New Prompt";
 "prompt.edit" = "Edit Prompt";
 "prompt.delete" = "Delete Prompt";
@@ -34,7 +34,7 @@
 "prompt.favorite" = "Add to Favorites";
 "prompt.unfavorite" = "Remove from Favorites";
 
-// MARK: - 标签系统
+// MARK: - Tag System
 "tags.title" = "Tags";
 "tags.new" = "New Tag";
 "tags.edit" = "Edit Tag";
@@ -43,14 +43,14 @@
 "tags.all" = "All";
 "tags.favorites" = "Favorites";
 
-// MARK: - 参数化 Prompts
+// MARK: - Parameterized Prompts
 "parameters.title" = "Fill Parameters";
 "parameters.description" = "Please fill in the required parameters:";
 "parameters.apply" = "Apply & Copy";
 "parameters.cancel" = "Cancel";
 "parameters.placeholder" = "Enter value...";
 
-// MARK: - 设置
+// MARK: - Settings
 "settings.title" = "Preferences";
 "settings.general" = "General";
 "settings.hotkey" = "Global Hotkey";
@@ -65,14 +65,14 @@
 "settings.sync.enabled" = "Enable iCloud Sync";
 "settings.sync.description" = "Sync your prompts across all your devices";
 
-// MARK: - 搜索与过滤
+// MARK: - Search & Filter
 "search.results" = "%d result(s)";
 "search.no_results" = "No results found for \"%@\"";
 "filter.all" = "All Prompts";
 "filter.favorites" = "Favorites";
 "filter.recent" = "Recently Used";
 
-// MARK: - 错误信息
+// MARK: - Error Messages
 "error.generic" = "Something went wrong";
 "error.save_failed" = "Failed to save prompt";
 "error.delete_failed" = "Failed to delete prompt";
@@ -82,7 +82,7 @@
 "error.accessibility.message" = "Promptly needs accessibility permission to use global hotkeys. Please enable it in System Settings > Privacy & Security > Accessibility.";
 "error.accessibility.open_settings" = "Open Settings";
 
-// MARK: - 确认对话框
+// MARK: - Confirmation Dialog
 "confirm.delete.prompt.title" = "Delete Prompt";
 "confirm.delete.prompt.message" = "Are you sure you want to delete \"%@\"?";
 "confirm.delete.tag.title" = "Delete Tag";
@@ -92,21 +92,21 @@
 "confirm.delete" = "Delete";
 "confirm.cancel" = "Cancel";
 
-// MARK: - 导入导出
+// MARK: - Import & Export
 "export.title" = "Export Prompts";
 "export.success" = "Prompts exported successfully";
 "import.title" = "Import Prompts";
 "import.success" = "Prompts imported successfully";
 "import.failed" = "Failed to import prompts";
 
-// MARK: - 快捷键
+// MARK: - Hotkeys
 "hotkey.default" = "⌥P";
 "hotkey.modifier.command" = "⌘";
 "hotkey.modifier.option" = "⌥";
 "hotkey.modifier.control" = "⌃";
 "hotkey.modifier.shift" = "⇧";
 
-// MARK: - UI组件
+// MARK: - UI Components
 "All Prompts" = "All Prompts";
 "Favorites" = "Favorites";
 "Categories" = "Categories";
@@ -129,22 +129,25 @@
 "Remove from Favorites" = "Remove from Favorites";
 "Delete" = "Delete";
 
-// MARK: - 添加/编辑Prompt
+// MARK: - Add/Edit Prompt
 "New Prompt" = "New Prompt";
 "Edit Prompt" = "Edit Prompt";
 "Title" = "Title";
 "Description" = "Description";
 "Category" = "Category";
+"None" = "None";
+"Select Category" = "Select Category";
 "Tags" = "Tags";
 "Prompt Content" = "Prompt Content";
 "Enter prompt title..." = "Enter prompt title...";
 "Enter description (optional)..." = "Enter description (optional)...";
+"Enter your prompt here..." = "Enter your prompt here...";
 "Add tag..." = "Add tag...";
 "Add" = "Add";
 "Cancel" = "Cancel";
 "Save" = "Save";
 
-// MARK: - 快捷键设置
+// MARK: - Hotkey Settings
 "Customize" = "Customize";
 "Customize keyboard shortcuts" = "Customize keyboard shortcuts";
 "Quick Access" = "Quick Access";
@@ -161,18 +164,18 @@
 "settings.hotkey.focus_search.description" = "Focus on search field";
 "settings.hotkey.show_favorites.description" = "Show favorite prompts";
 
-// MARK: - 菜单快捷键
+// MARK: - Menu Hotkeys
 "New Prompt" = "New Prompt";
 "Toggle Quick Access" = "Toggle Quick Access";
 "Focus Search" = "Focus Search";
 "Show Favorites" = "Show Favorites";
 
-
-// MARK: - 分类管理
+// MARK: - Category Management
 "Category Name" = "Category Name";
 "Enter category name..." = "Enter category name...";
 "Color" = "Color";
 "Icon" = "Icon";
+"Or enter an emoji to customize..." = "Or enter an emoji to customize...";
 "Custom Color" = "Custom Color";
 "Choose Color" = "Choose Color";
 "Apply" = "Apply";
@@ -185,7 +188,7 @@
 "OK" = "OK";
 "Edit" = "Edit";
 
-// MARK: - 语言切换
+// MARK: - Language Switch
 "language.changed.title" = "Language Changed";
 "language.changed.message" = "Please restart the app to apply the new language settings.";
 "language.changed.restart" = "Restart App";
@@ -196,12 +199,12 @@
 "github.description" = "View source code and more information";
 "github.visit" = "Visit GitHub";
 
-// MARK: - 详情面板
+// MARK: - Detail Panel
 "Prompt Details" = "Prompt Details";
 "No prompt selected" = "No prompt selected";
 "Copy" = "Copy";
 
-// MARK: - 其他
+// MARK: - Others
 "language.english" = "English";
 "language.chinese" = "简体中文";
 "Advanced" = "Advanced";

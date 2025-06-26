@@ -226,7 +226,7 @@ struct PromptEditorView: View {
             
             // existing tags (displayed below the input field)
             if !tags.isEmpty {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), alignment: .leading, spacing: 8) {
+                EditorTagFlowLayout(spacing: 8) {
                     ForEach(tags, id: \.self) { tag in
                         TagChip(text: tag) {
                             withAnimation(.spring(response: 0.3)) {
@@ -410,5 +410,67 @@ struct TagChip: View {
         .padding(.vertical, 6)
         .background(Color.blue.opacity(0.1))
         .cornerRadius(16)
+    }
+}
+
+// MARK: - editor flex layout
+struct EditorTagFlowLayout: Layout {
+    let spacing: CGFloat
+    
+    init(spacing: CGFloat = 8) {
+        self.spacing = spacing
+    }
+    
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let rows = computeRows(proposal: proposal, subviews: subviews)
+        let height = rows.map { row in
+            row.map { $0.sizeThatFits(.unspecified).height }.max() ?? 0
+        }.reduce(0) { $0 + $1 + spacing } - spacing
+        
+        return CGSize(width: proposal.width ?? 0, height: max(height, 0))
+    }
+    
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let rows = computeRows(proposal: proposal, subviews: subviews)
+        var y = bounds.minY
+        
+        for row in rows {
+            var x = bounds.minX
+            let rowHeight = row.map { $0.sizeThatFits(.unspecified).height }.max() ?? 0
+            
+            for subview in row {
+                let size = subview.sizeThatFits(.unspecified)
+                subview.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+                x += size.width + spacing
+            }
+            
+            y += rowHeight + spacing
+        }
+    }
+    
+    private func computeRows(proposal: ProposedViewSize, subviews: Subviews) -> [[LayoutSubviews.Element]] {
+        let availableWidth = proposal.width ?? .infinity
+        var rows: [[LayoutSubviews.Element]] = []
+        var currentRow: [LayoutSubviews.Element] = []
+        var currentRowWidth: CGFloat = 0
+        
+        for subview in subviews {
+            let subviewSize = subview.sizeThatFits(.unspecified)
+            
+            if currentRowWidth + subviewSize.width > availableWidth && !currentRow.isEmpty {
+                rows.append(currentRow)
+                currentRow = [subview]
+                currentRowWidth = subviewSize.width
+            } else {
+                currentRow.append(subview)
+                currentRowWidth += subviewSize.width + (currentRow.count > 1 ? spacing : 0)
+            }
+        }
+        
+        if !currentRow.isEmpty {
+            rows.append(currentRow)
+        }
+        
+        return rows
     }
 }

@@ -31,6 +31,10 @@ struct MainView: View {
     @State private var showDetailPanel = false
     @State private var showCopySuccess = false
     
+    // Tag搜索相关状态
+    @State private var selectedTags: Set<String> = []
+    @State private var cachedTagsWithCount: [(tag: String, count: Int)] = []
+    
     // filtered prompts
     private var filteredPrompts: [Prompt] {
         var filtered = prompts
@@ -43,6 +47,18 @@ struct MainView: View {
         // 只显示收藏
         if showingOnlyFavorites {
             filtered = filtered.filter { $0.isFavorite }
+        }
+        
+        // Tag筛选
+        if !selectedTags.isEmpty {
+            filtered = filtered.filter { prompt in
+                // 检查prompt是否包含所有选中的tags（AND逻辑）
+                selectedTags.allSatisfy { selectedTag in
+                    prompt.tags.contains { tag in
+                        tag.localizedCaseInsensitiveContains(selectedTag)
+                    }
+                }
+            }
         }
         
         // 搜索筛选
@@ -61,6 +77,22 @@ struct MainView: View {
     // prompt count for each category
     private func promptCount(for category: Category) -> Int {
         prompts.filter { $0.category?.id == category.id }.count
+    }
+    
+    // Because all available tags and their usage count
+    private var allTagsWithCount: [(tag: String, count: Int)] {
+        var tagCounts: [String: Int] = [:]
+        
+        // Count the usage of each tag
+        for prompt in prompts {
+            for tag in prompt.tags {
+                tagCounts[tag, default: 0] += 1
+            }
+        }
+        
+        // Convert to array and sort by alphabet
+        return tagCounts.map { (tag: $0.key, count: $0.value) }
+            .sorted { $0.tag < $1.tag }
     }
     
     var body: some View {
@@ -124,6 +156,13 @@ struct MainView: View {
             
             // set keyboard shortcuts
             setupKeyboardShortcuts()
+            
+            // Initialize tags cache
+            updateTagsCache()
+        }
+        .onChange(of: prompts) { _, _ in
+            // When prompts change, update tags cache
+            updateTagsCache()
         }
         .onDisappear {
             // clean up notification listeners
@@ -135,7 +174,7 @@ struct MainView: View {
     // left sidebar
     private var sidebar: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // All Prompts 和 Favorites
+            // All Prompts and Favorites
             VStack(alignment: .leading, spacing: 16) {
                 VStack(spacing: 8) {
                     NavigationButton(
@@ -166,7 +205,7 @@ struct MainView: View {
             Divider()
                 .padding(.vertical, 20)
             
-            // 分类列表
+            // Category list
             VStack(alignment: .leading, spacing: 12) {
                 Text("Categories".localized)
                     .font(.headline)
@@ -174,7 +213,7 @@ struct MainView: View {
                     .padding(.horizontal, 8)
                 
                 LazyVStack(spacing: 4) {
-                    // 所有分类（不再区分固定和自定义）
+                    // All categories (no longer distinguish fixed and custom)
                     ForEach(categories.sorted { $0.createdAt < $1.createdAt }) { category in
                         CategoryRow(
                             category: category,
@@ -184,7 +223,7 @@ struct MainView: View {
                                 editingCategory = category
                             },
                             onDelete: {
-                                // 检查是否有 prompt 使用该分类
+                                // Check if there is a prompt using this category
                                 if isCategoryInUse(category) {
                                     categoryCannotDelete = category
                                     showingCannotDeleteAlert = true
@@ -204,7 +243,7 @@ struct MainView: View {
             
             Spacer()
             
-            // 新建分类按钮
+            // New category button
             Button {
                 showingAddCategory = true
             } label: {
@@ -227,27 +266,34 @@ struct MainView: View {
     // right main content
     private var mainContent: some View {
         VStack(spacing: 0) {
-            // 搜索栏
-            searchHeader
-                .padding(20)
-                .background(Color(NSColor.windowBackgroundColor))
+            // Search bar and Tag area
+            VStack(spacing: 8) {
+                searchHeader
+                
+                // Tag visualization area
+                if !cachedTagsWithCount.isEmpty {
+                    tagVisualizationSection
+                }
+            }
+            .padding(20)
+            .background(Color(NSColor.windowBackgroundColor))
             
             Divider()
             
-            // 主要内容区域
+            // Main content area
             if showDetailPanel {
-                // 当显示详情面板时，使用VSplitView分割上下
+                // When the detail panel is displayed, use VSplitView to split up and down
                 VSplitView {
-                    // 上半部分：Prompt 列表
+                    // Upper part: Prompt list
                     promptListSection
                         .frame(minHeight: 200)
                     
-                    // 下半部分：详情面板
+                    // Lower part: Detail panel
                     promptDetailPanel
                         .frame(minHeight: 200, maxHeight: 400)
                 }
             } else {
-                // 当不显示详情面板时，只显示 Prompt 列表
+                // When the detail panel is not displayed, only display the Prompt list
                 promptListSection
             }
         }
@@ -286,7 +332,7 @@ struct MainView: View {
             LazyVStack(spacing: 16) {
                 ForEach(filteredPrompts) { prompt in
                     PromptCard(prompt: prompt) {
-                        // 点击时显示详情面板
+                        // When clicked, display the detail panel
                         selectedPrompt = prompt
                         withAnimation(.easeInOut(duration: 0.3)) {
                             showDetailPanel = true
@@ -298,10 +344,10 @@ struct MainView: View {
         }
     }
     
-    // 详情面板
+    // Detail panel
     private var promptDetailPanel: some View {
         VStack(spacing: 0) {
-            // 详情面板标题栏（显示prompt标题 + 复制按钮 + 关闭按钮）
+            // Detail panel title bar (display prompt title + copy button + close button)
             HStack {
                 if let prompt = selectedPrompt {
                     Text(prompt.title)
@@ -359,9 +405,9 @@ struct MainView: View {
             
             Divider()
             
-            // 详情内容
+            // Detail content
             if let prompt = selectedPrompt {
-                // Prompt内容
+                // Prompt content
                 ScrollView {
                     Text(prompt.userPrompt)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -380,7 +426,7 @@ struct MainView: View {
         }
         .background(Color(NSColor.windowBackgroundColor))
         .overlay(
-            // 复制成功提示
+            // Copy success toast
             copySuccessToast
                 .allowsHitTesting(false)
         )
@@ -645,9 +691,9 @@ extension MainView {
         NotificationCenter.default.addObserver(
             forName: .toggleQuickAccess,
             object: nil,
-            queue: nil // 在任意线程监听
+            queue: nil // Listen on any thread
         ) { _ in
-            // 切换到主线程来调用主线程方法
+            // Switch to the main thread to call the main thread method
             Task { @MainActor in
                 self.showQuickAccessWindow()
             }
@@ -703,22 +749,175 @@ extension MainView {
         }
     }
     
-    // 复制prompt内容到剪贴板
+    // tag可视化区域
+    private var tagVisualizationSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Tags".localized)
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+                
+                if !selectedTags.isEmpty {
+                    Button("Clear All".localized) {
+                        selectedTags.removeAll()
+                    }
+                    .font(.caption)
+                    .foregroundColor(.blue)
+                    .buttonStyle(.plain)
+                }
+                
+                Spacer()
+            }
+            
+            // Tag cloud display - stream layout
+            SimpleTagFlowLayout(spacing: 8) {
+                ForEach(cachedTagsWithCount, id: \.tag) { tagInfo in
+                    TagButton(
+                        tag: tagInfo.tag,
+                        count: tagInfo.count,
+                        isSelected: selectedTags.contains(tagInfo.tag)
+                    ) {
+                        toggleTag(tagInfo.tag)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 8)
+    }
+    
+    // Switch tag selection state
+    private func toggleTag(_ tag: String) {
+        if selectedTags.contains(tag) {
+            selectedTags.remove(tag)
+        } else {
+            selectedTags.insert(tag)
+        }
+    }
+    
+    // Update tags cache
+    private func updateTagsCache() {
+        cachedTagsWithCount = allTagsWithCount
+    }
+    
+    // Copy prompt content to clipboard
     private func copyPromptContent(_ content: String) {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(content, forType: .string)
         
-        // 显示复制成功提示
+        // Show copy success toast
         withAnimation(.spring()) {
             showCopySuccess = true
         }
         
-        // 2秒后隐藏提示
+        // Hide the toast after 2 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             withAnimation(.spring()) {
                 showCopySuccess = false
             }
         }
+    }
+}
+
+// MARK: - TagButton component
+struct TagButton: View {
+    let tag: String
+    let count: Int
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Text(tag)
+                    .font(.caption)
+                    .fontWeight(isSelected ? .semibold : .regular)
+                    .lineLimit(1)
+                
+                Text("(\(count))")
+                    .font(.caption2)
+                    .foregroundColor(isSelected ? .white.opacity(0.8) : .secondary)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isSelected ? Color.blue : Color.secondary.opacity(0.15))
+            )
+            .foregroundColor(isSelected ? .white : .primary)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            if hovering {
+                NSCursor.pointingHand.push()
+            } else {
+                NSCursor.pop()
+            }
+        }
+        .scaleEffect(isSelected ? 1.05 : 1.0)
+        .animation(.easeInOut(duration: 0.2), value: isSelected)
+    }
+}
+
+// MARK: - Stream layout
+struct SimpleTagFlowLayout: Layout {
+    let spacing: CGFloat
+    
+    init(spacing: CGFloat = 8) {
+        self.spacing = spacing
+    }
+    
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let rows = computeRows(proposal: proposal, subviews: subviews)
+        let height = rows.map { row in
+            row.map { $0.sizeThatFits(.unspecified).height }.max() ?? 0
+        }.reduce(0) { $0 + $1 + spacing } - spacing
+        
+        return CGSize(width: proposal.width ?? 0, height: max(height, 0))
+    }
+    
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let rows = computeRows(proposal: proposal, subviews: subviews)
+        var y = bounds.minY
+        
+        for row in rows {
+            var x = bounds.minX
+            let rowHeight = row.map { $0.sizeThatFits(.unspecified).height }.max() ?? 0
+            
+            for subview in row {
+                let size = subview.sizeThatFits(.unspecified)
+                subview.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+                x += size.width + spacing
+            }
+            
+            y += rowHeight + spacing
+        }
+    }
+    
+    private func computeRows(proposal: ProposedViewSize, subviews: Subviews) -> [[LayoutSubviews.Element]] {
+        let availableWidth = proposal.width ?? .infinity
+        var rows: [[LayoutSubviews.Element]] = []
+        var currentRow: [LayoutSubviews.Element] = []
+        var currentRowWidth: CGFloat = 0
+        
+        for subview in subviews {
+            let subviewSize = subview.sizeThatFits(.unspecified)
+            
+            if currentRowWidth + subviewSize.width > availableWidth && !currentRow.isEmpty {
+                rows.append(currentRow)
+                currentRow = [subview]
+                currentRowWidth = subviewSize.width
+            } else {
+                currentRow.append(subview)
+                currentRowWidth += subviewSize.width + (currentRow.count > 1 ? spacing : 0)
+            }
+        }
+        
+        if !currentRow.isEmpty {
+            rows.append(currentRow)
+        }
+        
+        return rows
     }
 }
