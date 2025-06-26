@@ -5,8 +5,8 @@
 //  Created by Melon on 17/06/2025.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 // MARK: - Add/Edit Category View
 struct CategoryEditorView: View {

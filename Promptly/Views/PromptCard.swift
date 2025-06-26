@@ -278,5 +278,3 @@ struct CategoryBadge: View {
         .cornerRadius(8)
     }
 }
-
-

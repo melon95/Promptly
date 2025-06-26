@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import SwiftUI
 import os
+import SwiftUI
 
 // MARK: - Global Localization State
 
