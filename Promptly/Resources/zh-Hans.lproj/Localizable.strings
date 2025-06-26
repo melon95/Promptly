@@ -195,6 +195,11 @@
 "github.description" = "查看源代码和更多信息";
 "github.visit" = "访问 GitHub";
 
+// MARK: - 详情面板
+"Prompt Details" = "提示词详情";
+"No prompt selected" = "未选择提示词";
+"Copy" = "复制";
+
 // MARK: - 其他
 "language.english" = "English";
 "language.chinese" = "简体中文";

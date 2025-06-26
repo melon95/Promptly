@@ -106,7 +106,7 @@ struct PromptCard: View {
             }
         }
         .onTapGesture {
-            showingEditSheet = true
+            onEdit()  // 使用传入的闭包而不是固定的编辑行为
         }
         .contextMenu {
             contextMenuItems

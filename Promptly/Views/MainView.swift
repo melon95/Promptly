@@ -26,6 +26,11 @@ struct MainView: View {
     @State private var categoryCannotDelete: Category?
     @FocusState private var isSearchFocused: Bool
     
+    // 新增：详情面板相关状态
+    @State private var selectedPrompt: Prompt?
+    @State private var showDetailPanel = false
+    @State private var showCopySuccess = false
+    
     // filtered prompts
     private var filteredPrompts: [Prompt] {
         var filtered = prompts
@@ -229,7 +234,28 @@ struct MainView: View {
             
             Divider()
             
-            // Prompt 列表
+            // 主要内容区域
+            if showDetailPanel {
+                // 当显示详情面板时，使用VSplitView分割上下
+                VSplitView {
+                    // 上半部分：Prompt 列表
+                    promptListSection
+                        .frame(minHeight: 200)
+                    
+                    // 下半部分：详情面板
+                    promptDetailPanel
+                        .frame(minHeight: 200, maxHeight: 400)
+                }
+            } else {
+                // 当不显示详情面板时，只显示 Prompt 列表
+                promptListSection
+            }
+        }
+    }
+    
+    // prompt list section
+    private var promptListSection: some View {
+        Group {
             if filteredPrompts.isEmpty {
                 emptyStateView
             } else {
@@ -260,12 +286,104 @@ struct MainView: View {
             LazyVStack(spacing: 16) {
                 ForEach(filteredPrompts) { prompt in
                     PromptCard(prompt: prompt) {
-                        // 空闭包，因为编辑功能现在在 PromptCard 内部处理
+                        // 点击时显示详情面板
+                        selectedPrompt = prompt
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showDetailPanel = true
+                        }
                     }
                 }
             }
             .padding(20)
         }
+    }
+    
+    // 详情面板
+    private var promptDetailPanel: some View {
+        VStack(spacing: 0) {
+            // 详情面板标题栏（显示prompt标题 + 复制按钮 + 关闭按钮）
+            HStack {
+                if let prompt = selectedPrompt {
+                    Text(prompt.title)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .textSelection(.enabled)
+                        .lineLimit(1)
+                    
+                    Spacer()
+                    
+                    Button {
+                        copyPromptContent(prompt.userPrompt)
+                    } label: {
+                        Image(systemName: "doc.on.doc")
+                            .font(.title3)
+                            .foregroundColor(.blue)
+                    }
+                    .buttonStyle(.plain)
+                    .onHover { hovering in
+                        if hovering {
+                            NSCursor.pointingHand.push()
+                        } else {
+                            NSCursor.pop()
+                        }
+                    }
+                } else {
+                    Text("Prompt Details".localized)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                    
+                    Spacer()
+                }
+                
+                Button {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        showDetailPanel = false
+                        selectedPrompt = nil
+                    }
+                } label: {
+                    Image(systemName: "xmark")
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+                .onHover { hovering in
+                    if hovering {
+                        NSCursor.pointingHand.push()
+                    } else {
+                        NSCursor.pop()
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .background(Color(NSColor.controlBackgroundColor))
+            
+            Divider()
+            
+            // 详情内容
+            if let prompt = selectedPrompt {
+                // Prompt内容
+                ScrollView {
+                    Text(prompt.userPrompt)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .textSelection(.enabled)
+                        .font(.system(.body, design: .monospaced))
+                        .padding(20)
+                }
+            } else {
+                VStack {
+                    Spacer()
+                    Text("No prompt selected".localized)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+            }
+        }
+        .background(Color(NSColor.windowBackgroundColor))
+        .overlay(
+            // 复制成功提示
+            copySuccessToast
+                .allowsHitTesting(false)
+        )
     }
     
     // empty state view
@@ -563,5 +681,44 @@ extension MainView {
     // 检查分类是否被使用
     private func isCategoryInUse(_ category: Category) -> Bool {
         return prompts.contains { $0.category?.id == category.id }
+    }
+    
+    // 复制成功提示
+    @ViewBuilder
+    private var copySuccessToast: some View {
+        if showCopySuccess {
+            HStack(spacing: 8) {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+                Text("prompt.copied".localized)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+            }
+            .padding(.vertical, 10)
+            .padding(.horizontal, 16)
+            .background(.regularMaterial)
+            .cornerRadius(20)
+            .shadow(radius: 5)
+            .transition(.move(edge: .top).combined(with: .opacity))
+        }
+    }
+    
+    // 复制prompt内容到剪贴板
+    private func copyPromptContent(_ content: String) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(content, forType: .string)
+        
+        // 显示复制成功提示
+        withAnimation(.spring()) {
+            showCopySuccess = true
+        }
+        
+        // 2秒后隐藏提示
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation(.spring()) {
+                showCopySuccess = false
+            }
+        }
     }
 }
