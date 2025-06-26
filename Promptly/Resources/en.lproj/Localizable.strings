@@ -173,6 +173,10 @@
 "Enter category name..." = "Enter category name...";
 "Color" = "Color";
 "Icon" = "Icon";
+"Custom Color" = "Custom Color";
+"Choose Color" = "Choose Color";
+"Apply" = "Apply";
+"Choose Custom Color" = "Choose Custom Color";
 "Edit Category" = "Edit Category";
 "Delete Category" = "Delete Category";
 "Are you sure you want to delete the category \"%@\"?" = "Are you sure you want to delete the category \"%@\"?";

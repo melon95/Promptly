@@ -9,7 +9,7 @@ Promptly 是一个专为 macOS 设计的原生应用程序，用于管理和组�
 
 ## 项目核心信息
 
-- **技术栈**: Swift 5.9+, SwiftUI, SwiftData
+- **技术栈**: Swift 6, SwiftUI, SwiftData
 - **架构模式**: MVVM (Model-View-ViewModel)
 - **数据持久化**: SwiftData with iCloud sync
 - **应用类型**: 菜单栏应用 (Menu Bar App)

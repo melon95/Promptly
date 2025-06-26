@@ -5,6 +5,7 @@
 //  Created by Melon on 17/06/2025.
 //
 
+import Foundation
 import SwiftData
 import SwiftUI
 
@@ -111,7 +112,7 @@ struct PromptCard: View {
             contextMenuItems
         }
         .sheet(isPresented: $showingEditSheet) {
-            AddPromptView(prompt: prompt)
+            PromptEditorView(prompt: prompt)
         }
         .overlay(
             copySuccessHint
@@ -257,9 +258,15 @@ struct CategoryBadge: View {
     
     var body: some View {
         HStack(spacing: 4) {
-            Circle()
-                .fill(colorForCategory(category.color))
-                .frame(width: 6, height: 6)
+            // Display Emoji or SF Symbol
+            if let firstChar = category.iconName.first, String(firstChar).emojis == String(firstChar) {
+                Text(category.iconName)
+                    .font(.caption)
+            } else {
+                Image(systemName: category.iconName)
+                    .font(.caption)
+                    .foregroundColor(colorForName(category.color))
+            }
             
             Text(category.name)
                 .font(.caption)
@@ -270,16 +277,6 @@ struct CategoryBadge: View {
         .background(Color.secondary.opacity(0.1))
         .cornerRadius(8)
     }
-    
-    private func colorForCategory(_ colorName: String) -> Color {
-        switch colorName {
-        case "blue": return .blue
-        case "green": return .green
-        case "orange": return .orange
-        case "pink": return .pink
-        case "red": return .red
-        case "gray": return .gray
-        default: return .gray
-        }
-    }
-} 
+}
+
+
