@@ -135,10 +135,13 @@
 "Title" = "标题";
 "Description" = "描述";
 "Category" = "分类";
+"None" = "无";
+"Select Category" = "选择分类";
 "Tags" = "标签";
 "Prompt Content" = "提示词内容";
 "Enter prompt title..." = "输入提示词标题...";
 "Enter description (optional)..." = "输入描述（可选）...";
+"Enter your prompt here..." = "在此输入您的提示词...";
 "Add tag..." = "添加标签...";
 "Add" = "添加";
 "Cancel" = "取消";
@@ -172,6 +175,7 @@
 "Enter category name..." = "输入分类名称...";
 "Color" = "颜色";
 "Icon" = "图标";
+"Or enter an emoji to customize..." = "或输入表情符号自定义...";
 "Custom Color" = "自定义颜色";
 "Choose Color" = "选择颜色";
 "Apply" = "应用";

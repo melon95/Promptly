@@ -45,9 +45,10 @@ struct CategoryEditorView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                // category name input
-                VStack(alignment: .leading, spacing: 8) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    // category name input
+                    VStack(alignment: .leading, spacing: 8) {
                     Text("Category Name".localized)
                         .font(.headline)
                         .foregroundColor(.primary)
@@ -67,60 +68,7 @@ struct CategoryEditorView: View {
                 }
                 
                 // color selection
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Color".localized)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
-                        ForEach(availableColors, id: \.self) { colorName in
-                            Button {
-                                selectedColor = colorName
-                                customColor = colorForName(colorName)
-                            } label: {
-                                Circle()
-                                    .fill(colorForName(colorName))
-                                    .frame(width: 32, height: 32)
-                                    .overlay(
-                                        Circle()
-                                            .stroke(selectedColor == colorName ? Color.primary : Color.clear, lineWidth: 2)
-                                    )
-                            }
-                            .buttonStyle(.plain)
-                            .onHover { hovering in if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() } }
-                        }
-                        
-                        // Custom Color Picker Button
-                        Button(action: {
-                            customColor = colorForName(selectedColor)
-                            showingColorPickerPopover = true
-                        }) {
-                            let isCustomColor = selectedColor.hasPrefix("#")
-                            ZStack {
-                                Circle()
-                                    .fill(isCustomColor ? colorForName(selectedColor) : Color(NSColor.controlBackgroundColor))
-                                    .frame(width: 32, height: 32)
-                                    .overlay(Circle().stroke(Color.secondary.opacity(0.3), lineWidth: 1))
-                                    .overlay(Circle().stroke(isCustomColor ? Color.primary : Color.clear, lineWidth: 2))
-
-                                if !isCustomColor {
-                                    Image(systemName: "plus")
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .popover(isPresented: $showingColorPickerPopover, arrowEdge: .bottom) {
-                            ColorPicker("Select Color", selection: $customColor, supportsOpacity: false)
-                                .labelsHidden()
-                                .padding()
-                                .onChange(of: customColor) { _, newValue in
-                                    selectedColor = newValue.toHex()
-                                }
-                        }
-                        .onHover { hovering in if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() } }
-                    }
-                }
+                colorSelectionSection
                 
                 // icon selection
                 VStack(alignment: .leading, spacing: 12) {
@@ -189,8 +137,9 @@ struct CategoryEditorView: View {
                     )
                 }
             }
-            .padding(24)
-            .navigationTitle(isEditing ? "Edit Category".localized : "New Category".localized)
+            .padding(20)
+        }
+        .navigationTitle(isEditing ? "Edit Category".localized : "New Category".localized)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel".localized) {
@@ -206,7 +155,7 @@ struct CategoryEditorView: View {
                 }
             }
         }
-        .frame(width: 400, height: 500)
+        .frame(width: 400, height: 420)
         .onAppear {
             loadCategoryData()
         }
@@ -256,5 +205,106 @@ struct CategoryEditorView: View {
         }
         
         dismiss()
+    }
+    
+    // 颜色选择区域（拆分以解决编译器超时问题）
+    private var colorSelectionSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Color".localized)
+                .font(.headline)
+                .foregroundColor(.primary)
+
+            colorGridView
+        }
+    }
+    
+    // 颜色网格视图
+    private var colorGridView: some View {
+        let columns = Array(repeating: GridItem(.flexible()), count: 7)
+        
+        return LazyVGrid(columns: columns, spacing: 12) {
+            colorButtonsSection
+            customColorPickerButton
+        }
+    }
+    
+    // 预设颜色按钮
+    private var colorButtonsSection: some View {
+        ForEach(availableColors, id: \.self) { colorName in
+            colorButton(for: colorName)
+        }
+    }
+    
+    // 单个颜色按钮
+    private func colorButton(for colorName: String) -> some View {
+        Button {
+            selectedColor = colorName
+            customColor = colorForName(colorName)
+        } label: {
+            colorCircle(for: colorName)
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            if hovering {
+                NSCursor.pointingHand.push()
+            } else {
+                NSCursor.pop()
+            }
+        }
+    }
+    
+    // 颜色圆圈
+    private func colorCircle(for colorName: String) -> some View {
+        Circle()
+            .fill(colorForName(colorName))
+            .frame(width: 32, height: 32)
+            .overlay(
+                Circle()
+                    .stroke(selectedColor == colorName ? Color.primary : Color.clear, lineWidth: 2)
+            )
+    }
+    
+    // 自定义颜色选择器按钮
+    private var customColorPickerButton: some View {
+        Button(action: {
+            customColor = colorForName(selectedColor)
+            showingColorPickerPopover = true
+        }) {
+            customColorCircle
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: $showingColorPickerPopover, arrowEdge: .bottom) {
+            ColorPicker("Select Color", selection: $customColor, supportsOpacity: false)
+                .labelsHidden()
+                .padding()
+                .onChange(of: customColor) { _, newValue in
+                    selectedColor = newValue.toHex()
+                }
+        }
+        .onHover { hovering in
+            if hovering {
+                NSCursor.pointingHand.push()
+            } else {
+                NSCursor.pop()
+            }
+        }
+    }
+    
+    // 自定义颜色圆圈
+    private var customColorCircle: some View {
+        let isCustomColor = selectedColor.hasPrefix("#")
+        
+        return ZStack {
+            Circle()
+                .fill(isCustomColor ? colorForName(selectedColor) : Color(NSColor.controlBackgroundColor))
+                .frame(width: 32, height: 32)
+                .overlay(Circle().stroke(Color.secondary.opacity(0.3), lineWidth: 1))
+                .overlay(Circle().stroke(isCustomColor ? Color.primary : Color.clear, lineWidth: 2))
+
+            if !isCustomColor {
+                Image(systemName: "plus")
+                    .foregroundColor(.secondary)
+            }
+        }
     }
 } 
