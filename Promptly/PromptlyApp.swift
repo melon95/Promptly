@@ -7,9 +7,21 @@
 
 import SwiftData
 import SwiftUI
+import FirebaseCore
+
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+  func applicationDidFinishLaunching(_ aNotification: Notification) {
+    FirebaseApp.configure()
+  }
+}
 
 @main
 struct PromptlyApp: App {
+    // register app delegate for Firebase setup
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
+
     // SwiftData model container
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
