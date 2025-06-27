@@ -211,4 +211,10 @@
 "Advanced" = "Advanced";
 "About" = "About";
 "Done" = "Done";
-"Version" = "Version"; 
+"Version" = "Version";
+
+/* Update Available Alert */
+"Update Available" = "Update Available";
+"Update Now" = "Update Now";
+"Later" = "Later";
+"A new version of Promptly is available. Do you want to update now?" = "A new version of Promptly is available. Do you want to update now?"; 
