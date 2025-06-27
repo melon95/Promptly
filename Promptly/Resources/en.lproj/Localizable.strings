@@ -17,6 +17,7 @@
 
 // MARK: - Main View
 "main.search.placeholder" = "Search prompts...";
+"main.tags.search.clear" = "Clear all";
 "main.no_prompts" = "No prompts found";
 "main.empty.title" = "Welcome to Promptly";
 "main.empty.subtitle" = "Create your first prompt to get started";

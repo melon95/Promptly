@@ -752,18 +752,25 @@ extension MainView {
     // tag可视化区域
     private var tagVisualizationSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
                 Text("Tags".localized)
                     .font(.headline)
                     .foregroundColor(.secondary)
                 
                 if !selectedTags.isEmpty {
-                    Button("Clear All".localized) {
+                    Button("main.tags.search.clear".localized) {
                         selectedTags.removeAll()
                     }
                     .font(.caption)
                     .foregroundColor(.blue)
                     .buttonStyle(.plain)
+                    .onHover { hovering in
+                        if hovering {
+                            NSCursor.pointingHand.push()
+                        } else {
+                            NSCursor.pop()
+                        }
+                    }
                 }
                 
                 Spacer()

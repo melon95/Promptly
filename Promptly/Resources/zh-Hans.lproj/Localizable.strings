@@ -17,6 +17,7 @@
 
 // MARK: - 主界面
 "main.search.placeholder" = "搜索提示词...";
+"main.tags.search.clear" = "全部清除";
 "main.no_prompts" = "未找到提示词";
 "main.empty.title" = "欢迎使用 Promptly";
 "main.empty.subtitle" = "创建您的第一个提示词开始使用";
