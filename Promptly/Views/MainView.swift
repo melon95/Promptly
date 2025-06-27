@@ -14,6 +14,8 @@ struct MainView: View {
     @Query private var prompts: [Prompt]
     @Query private var categories: [Category]
     
+    @StateObject private var updateManager = UpdateManager()
+    
     @State private var selectedCategory: Category?
     @State private var searchText = ""
     @State private var showingAddPrompt = false
@@ -143,6 +145,16 @@ struct MainView: View {
         .sheet(item: $editingCategory) { category in
             CategoryEditorView(category: category)
         }
+        .alert("Update Available".localized, isPresented: $updateManager.isUpdateAvailable) {
+            Button("Update Now".localized) {
+                if let url = updateManager.latestReleaseURL {
+                    NSWorkspace.shared.open(url)
+                }
+            }
+            Button("Later".localized, role: .cancel) {}
+        } message: {
+            Text("A new version of Promptly is available. Do you want to update now?".localized)
+        }
         .alert("Delete Category".localized, isPresented: $showingDeleteAlert) {
             Button("Cancel".localized, role: .cancel) { }
             Button("Delete".localized, role: .destructive) {
@@ -167,6 +179,9 @@ struct MainView: View {
             SampleData.createDefaultCategories(in: modelContext)
             SampleData.createSamplePrompts(in: modelContext)
             
+            // check for updates
+            updateManager.checkForUpdates()
+            
             // set keyboard shortcuts
             setupKeyboardShortcuts()
             
@@ -183,8 +198,6 @@ struct MainView: View {
             NotificationCenter.default.removeObserver(self)
         }
     }
-    
-
     
     // right main content
     private var mainContent: some View {
@@ -249,10 +262,7 @@ struct MainView: View {
             }
         }
     }
-
 }
-
-
 
 // MARK: - MainView extension - keyboard shortcuts
 extension MainView {
