@@ -22,7 +22,7 @@ jobs:
         with:
           xcode-version: '16.2' # Be specific to match your local setup
 
-      # ‼️ 新增的步骤：在构建前导入证书
+      # ‼️ import certificate
       - name: Import Code-Signing Certificate
         uses: apple-actions/import-codesign-certs@v3
         with:
@@ -39,9 +39,9 @@ jobs:
             -archivePath ./build/Promptly.xcarchive \
             -sdk macosx \
             -configuration Release \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=YES \
+            CODE_SIGNING_ALLOWED=YES
 
       - name: Export .app from Archive
         run: |
@@ -50,7 +50,10 @@ jobs:
             -exportPath ./build \
             -exportOptionsPlist ./ExportOptions.plist
 
-      # ... 后续 create-dmg 和 upload-artifact 步骤保持不变 ...
+      - name: Ad-hoc Sign the App
+        run: |
+          codesign --force --deep --sign - "./build/Promptly.app"
+
       - name: Install create-dmg
         run: brew install create-dmg
 
@@ -79,7 +82,6 @@ jobs:
     name: Create GitHub Release
     needs: build
     runs-on: ubuntu-latest
-    # 只有在推送标签时才执行 release
     if: startsWith(github.ref, 'refs/tags/')
     permissions:
       contents: write
