@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>copy-app</string>
+    <string>mac-application</string>
     <key>destination</key>
     <string>export</string>
     <key>stripSwiftSymbols</key>
