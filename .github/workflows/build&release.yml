@@ -38,14 +38,16 @@ jobs:
             -scheme Promptly \
             -archivePath ./build/Promptly.xcarchive \
             -sdk macosx \
-            -configuration Release
-
+            -configuration Release \
+            -allowProvisioningUpdates \
+            CODE_SIGN_STYLE=Automatic
       - name: Export .app from Archive
         run: |
           xcodebuild -exportArchive \
             -archivePath ./build/Promptly.xcarchive \
             -exportPath ./build \
-            -exportOptionsPlist ./ExportOptions.plist
+            -exportOptionsPlist ./ExportOptions.plist \
+            -allowProvisioningUpdates
 
       # ... 后续 create-dmg 和 upload-artifact 步骤保持不变 ...
       - name: Install create-dmg
