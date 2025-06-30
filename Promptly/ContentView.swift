@@ -14,6 +14,10 @@ struct ContentView: View {
     var body: some View {
         MainView()
             .frame(minWidth: 800, minHeight: 600)
+            .onAppear {
+                // record main page view - PV tracking
+                AnalyticsManager.shared.logPageView(PageName.main.rawValue)
+            }
     }
 }
 

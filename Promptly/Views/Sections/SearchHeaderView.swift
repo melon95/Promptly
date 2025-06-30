@@ -93,6 +93,8 @@ struct SearchHeaderView: View {
         } else {
             selectedTags.insert(tag)
         }
+        // record search page view - PV tracking (when user interacts with search feature)
+        AnalyticsManager.shared.logPageView(PageName.search.rawValue)
     }
 }
 

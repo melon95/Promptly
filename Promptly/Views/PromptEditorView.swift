@@ -88,6 +88,8 @@ struct PromptEditorView: View {
         .frame(minWidth: 600, minHeight: 700)
         .onAppear {
             loadPromptData()
+            // record prompt editor page view - PV tracking
+            AnalyticsManager.shared.logPageView(PageName.promptEditor.rawValue)
         }
     }
     

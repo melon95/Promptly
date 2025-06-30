@@ -96,6 +96,10 @@ struct PromptDetailView: View {
             copySuccessToast
                 .allowsHitTesting(false)
         )
+        .onAppear {
+            // record prompt detail page view - PV tracking
+            AnalyticsManager.shared.logPageView(PageName.promptDetail.rawValue)
+        }
     }
     
     // 复制成功提示
