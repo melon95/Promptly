@@ -7,6 +7,7 @@
 
 import SwiftData
 import SwiftUI
+import AppKit
 
 // add/edit prompt view
 struct PromptEditorView: View {
@@ -258,10 +259,11 @@ struct PromptEditorView: View {
                         .foregroundColor(Color(NSColor.placeholderTextColor))
                         .font(.system(.body, design: .monospaced))
                         .padding(.leading, 5)
-                        .padding(.top, 0)
+                        .padding(.top, 8)
                         .allowsHitTesting(false)
                 }
             }
+            .frame(minHeight: 200)
             .padding(12)
             .frame(minHeight: 200)
             .background(Color(NSColor.textBackgroundColor))

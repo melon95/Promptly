@@ -7,16 +7,18 @@
 
 import SwiftData
 import SwiftUI
+import Foundation
 
 struct PromptDetailView: View {
     let prompt: Prompt?
     let showCopySuccess: Bool
     let onClose: () -> Void
     let onCopy: (String) -> Void
+    let onFullScreen: (Prompt) -> Void
     
     var body: some View {
         VStack(spacing: 0) {
-            // Detail panel title bar (display prompt title + copy button + close button)
+            // Detail panel title bar (display prompt title + copy button + fullscreen button + close button)
             HStack {
                 if let prompt = prompt {
                     Text(prompt.title)
@@ -27,10 +29,28 @@ struct PromptDetailView: View {
                     
                     Spacer()
                     
+                    // Copy button
                     Button {
                         onCopy(prompt.userPrompt)
                     } label: {
                         Image(systemName: "doc.on.doc")
+                            .font(.title3)
+                            .foregroundColor(.blue)
+                    }
+                    .buttonStyle(.plain)
+                    .onHover { hovering in
+                        if hovering {
+                            NSCursor.pointingHand.push()
+                        } else {
+                            NSCursor.pop()
+                        }
+                    }
+                    
+                    // Fullscreen button
+                    Button {
+                        onFullScreen(prompt)
+                    } label: {
+                        Image(systemName: "arrow.up.left.and.arrow.down.right")
                             .font(.title3)
                             .foregroundColor(.blue)
                     }
@@ -75,11 +95,9 @@ struct PromptDetailView: View {
             if let prompt = prompt {
                 // Prompt content
                 ScrollView {
-                    Text(prompt.userPrompt)
+                    ContentRenderer.render(prompt.userPrompt)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .textSelection(.enabled)
-                        .font(.system(.body, design: .monospaced))
-                        .padding(20)
+                        .padding(16)
                 }
             } else {
                 VStack {
@@ -102,7 +120,7 @@ struct PromptDetailView: View {
         }
     }
     
-    // 复制成功提示
+    // copy success toast
     @ViewBuilder
     private var copySuccessToast: some View {
         if showCopySuccess {
@@ -121,4 +139,4 @@ struct PromptDetailView: View {
             .transition(.move(edge: .top).combined(with: .opacity))
         }
     }
-} 
+}  
