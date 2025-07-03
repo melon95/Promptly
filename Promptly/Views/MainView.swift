@@ -33,6 +33,10 @@ struct MainView: View {
     @State private var showDetailPanel = false
     @State private var showCopySuccess = false
     
+    // 全屏相关状态
+    @State private var isFullScreen = false
+    @State private var fullScreenPrompt: Prompt?
+    
     // Tag搜索相关状态
     @State private var selectedTags: Set<String> = []
     @State private var cachedTagsWithCount: [(tag: String, count: Int)] = []
@@ -98,27 +102,47 @@ struct MainView: View {
     }
     
     var body: some View {
-        HSplitView {
-            // left sidebar
-            SidebarView(
-                selectedCategory: $selectedCategory,
-                showingOnlyFavorites: $showingOnlyFavorites,
-                editingCategory: $editingCategory,
-                categoryToDelete: $categoryToDelete,
-                categoryCannotDelete: $categoryCannotDelete,
-                showingCannotDeleteAlert: $showingCannotDeleteAlert,
-                showingDeleteAlert: $showingDeleteAlert,
-                showingAddCategory: $showingAddCategory,
-                prompts: prompts,
-                categories: categories,
-                promptCount: promptCount,
-                isCategoryInUse: isCategoryInUse
-            )
-            .frame(minWidth: 250, maxWidth: 350)
+        ZStack {
+            // Main app content
+            HSplitView {
+                // left sidebar
+                SidebarView(
+                    selectedCategory: $selectedCategory,
+                    showingOnlyFavorites: $showingOnlyFavorites,
+                    editingCategory: $editingCategory,
+                    categoryToDelete: $categoryToDelete,
+                    categoryCannotDelete: $categoryCannotDelete,
+                    showingCannotDeleteAlert: $showingCannotDeleteAlert,
+                    showingDeleteAlert: $showingDeleteAlert,
+                    showingAddCategory: $showingAddCategory,
+                    prompts: prompts,
+                    categories: categories,
+                    promptCount: promptCount,
+                    isCategoryInUse: isCategoryInUse
+                )
+                .frame(minWidth: 250, maxWidth: 350)
+                
+                // right main content
+                mainContent
+                    .frame(minWidth: 500)
+            }
             
-            // right main content
-            mainContent
-                .frame(minWidth: 500)
+            // Full screen overlay (covers entire window)
+            if isFullScreen, let prompt = fullScreenPrompt {
+                FullScreenPromptView(
+                    prompt: prompt,
+                    isPresented: $isFullScreen,
+                    onCopy: copyPromptContent,
+                    onClose: {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showDetailPanel = false
+                            selectedPrompt = nil
+                        }
+                    }
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .zIndex(1000) // Ensure it's on top
+            }
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -241,7 +265,13 @@ struct MainView: View {
                                 selectedPrompt = nil
                             }
                         },
-                        onCopy: copyPromptContent
+                        onCopy: copyPromptContent,
+                        onFullScreen: { prompt in
+                            fullScreenPrompt = prompt
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                isFullScreen = true
+                            }
+                        }
                     )
                     .frame(minHeight: 200, maxHeight: 400)
                 }
@@ -260,6 +290,188 @@ struct MainView: View {
                     }
                 )
             }
+        }
+    }
+}
+
+// MARK: - Full Screen Prompt View (for MainView)
+struct FullScreenPromptView: View {
+    let prompt: Prompt
+    @Binding var isPresented: Bool
+    let onCopy: (String) -> Void
+    let onClose: () -> Void
+    
+    @State private var showCopySuccess = false
+    
+    var body: some View {
+        ZStack {
+            // Background overlay with gradient
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.black.opacity(0.75),
+                    Color.black.opacity(0.85)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea(.all)
+            .onTapGesture {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    isPresented = false
+                }
+            }
+            
+            VStack(spacing: 0) {
+                // Full screen header with improved styling
+                HStack(spacing: 16) {
+                    Text(prompt.title)
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .textSelection(.enabled)
+                        .lineLimit(2)
+                        .foregroundColor(.primary)
+                    
+                    Spacer()
+                    
+                    HStack(spacing: 12) {
+                        // Copy button
+                        Button {
+                            onCopy(prompt.userPrompt)
+                            // Show local copy success
+                            showCopySuccess = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                showCopySuccess = false
+                            }
+                        } label: {
+                            Image(systemName: "doc.on.doc")
+                                .font(.title3)
+                                .foregroundColor(.blue)
+                        }
+                        .buttonStyle(.plain)
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
+                        
+                        // Exit fullscreen button
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                isPresented = false
+                            }
+                        } label: {
+                            Image(systemName: "arrow.down.right.and.arrow.up.left")
+                                .font(.title3)
+                                .foregroundColor(.blue)
+                        }
+                        .buttonStyle(.plain)
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
+                        
+                        // Close detail view button
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                isPresented = false
+                            }
+                            onClose()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.title3)
+                                .foregroundColor(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 40)
+                .padding(.top, 28)
+                .padding(.bottom, 20)
+                .background(
+                    Color(NSColor.controlBackgroundColor)
+                        .opacity(0.95)
+                )
+                
+                // Subtle divider
+                Rectangle()
+                    .fill(Color.secondary.opacity(0.3))
+                    .frame(height: 1)
+                
+                // Full screen content with improved styling and syntax highlighting
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        ContentRenderer.highlightTextForFullScreen(prompt.userPrompt)
+                            .lineSpacing(6)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding(.horizontal, 40)
+                    .padding(.top, 28)
+                    .padding(.bottom, 40)
+                }
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color(NSColor.textBackgroundColor).opacity(0.98),
+                            Color(NSColor.textBackgroundColor).opacity(0.95)
+                        ]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+            }
+            .frame(maxWidth: 950, maxHeight: .infinity)  // Slightly wider for better reading
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color(NSColor.windowBackgroundColor).opacity(0.98))
+                    .shadow(color: .black.opacity(0.3), radius: 30, x: 0, y: 10)
+            )
+            .overlay(
+                // Copy success toast for full screen
+                fullScreenCopySuccessToast
+                    .allowsHitTesting(false)
+            )
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    @ViewBuilder
+    private var fullScreenCopySuccessToast: some View {
+        if showCopySuccess {
+            VStack {
+                HStack(spacing: 12) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                        .font(.title3)
+                    Text("Copied to Clipboard")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                }
+                .padding(.vertical, 16)
+                .padding(.horizontal, 24)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(.regularMaterial)
+                        .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
+                )
+                
+                Spacer()
+            }
+            .padding(.top, 80)
+            .transition(.move(edge: .top).combined(with: .opacity))
         }
     }
 }
