@@ -29,6 +29,10 @@ jobs:
           p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
           p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
 
+      - name: Create GoogleService-Info.plist from Secret
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 --decode > Promptly/GoogleService-Info.plist
+
       - name: Create build directory
         run: mkdir -p ./build
 
@@ -70,6 +74,10 @@ jobs:
             --skip-jenkins \
             "Promptly.dmg" \
             "build/Promptly.app"
+
+      - name: Clean up sensitive files
+        run: |
+          rm -f Promptly/GoogleService-Info.plist
 
       - name: Upload DMG Artifact
         uses: actions/upload-artifact@v4
