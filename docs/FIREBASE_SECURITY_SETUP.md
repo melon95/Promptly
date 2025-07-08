@@ -36,25 +36,33 @@
 
 在 GitHub 仓库设置中添加以下 Secrets（Settings → Secrets and variables → Actions）：
 
-| Secret 名称                        | 描述                             | 生成方法                            |
-| ---------------------------------- | -------------------------------- | ----------------------------------- |
-| `GOOGLE_SERVICE_INFO_PLIST_BASE64` | Base64 编码的完整 plist 文件内容 | 使用 `scripts/setup_firebase_base64.sh` |
+### 方法 1: 原始 plist 内容 (推荐) 🌟
+
+| Secret 名称                | 描述                    | 生成方法                         |
+| -------------------------- | ----------------------- | -------------------------------- |
+| `GOOGLE_SERVICE_INFO_PLIST` | 原始 XML 格式的 plist 内容 | 使用 `scripts/setup_firebase_plist.sh` |
 
 **优势**：
-- ✅ 保持原始 plist 文件格式和结构
-- ✅ 避免手动输入配置可能产生的错误
+- ✅ 直接使用原始 XML 内容，无需编码/解码
 - ✅ 更简单的 CI/CD 配置
-- ✅ 一次性设置，无需多个 Secret
+- ✅ 易于调试和验证
+- ✅ 保持完整的文件格式
 
 **设置步骤**：
 ```bash
 # 1. 确保您有 GoogleService-Info.plist 文件
 # 2. 运行自动化脚本
-chmod +x scripts/setup_firebase_base64.sh
-./scripts/setup_firebase_base64.sh
+chmod +x scripts/setup_firebase_plist.sh
+./scripts/setup_firebase_plist.sh
 
 # 3. 按照脚本提示在 GitHub 中创建 Secret
 ```
+
+### 方法 2: Base64 编码内容
+
+| Secret 名称                        | 描述                             | 生成方法                            |
+| ---------------------------------- | -------------------------------- | ----------------------------------- |
+| `GOOGLE_SERVICE_INFO_PLIST_BASE64` | Base64 编码的完整 plist 文件内容 | 使用 `scripts/setup_firebase_base64.sh` |
 
 ## 🛠️ 本地开发设置
 
@@ -91,6 +99,24 @@ chmod +x scripts/setup_firebase_base64.sh
 
 GitHub Actions 现在会：
 
+### 方法 1: 原始 plist 内容 (当前使用)：
+1. 📥 从 `GOOGLE_SERVICE_INFO_PLIST` Secret 读取原始 XML 内容
+2. 📝 直接写入 `GoogleService-Info.plist` 文件
+3. 🔨 构建应用
+4. 🧹 构建完成后自动清理敏感文件
+
+**关键步骤**：
+```yaml
+- name: Create GoogleService-Info.plist from Secret
+  run: |
+    echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}" > Promptly/GoogleService-Info.plist
+
+- name: Clean up sensitive files
+  run: |
+    rm -f Promptly/GoogleService-Info.plist
+```
+
+### 方法 2: Base64 编码内容：
 1. 📥 从 `GOOGLE_SERVICE_INFO_PLIST_BASE64` Secret 读取 Base64 编码内容
 2. 🔓 解码 Base64 内容并创建 `GoogleService-Info.plist` 文件
 3. 🔨 构建应用
@@ -101,10 +127,6 @@ GitHub Actions 现在会：
 - name: Create GoogleService-Info.plist from Secret
   run: |
     echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 --decode > Promptly/GoogleService-Info.plist
-
-- name: Clean up sensitive files
-  run: |
-    rm -f Promptly/GoogleService-Info.plist
 ```
 
 ## 📞 紧急联系
