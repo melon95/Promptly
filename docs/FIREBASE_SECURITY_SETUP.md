@@ -36,17 +36,17 @@
 
 在 GitHub 仓库设置中添加以下 Secrets（Settings → Secrets and variables → Actions）：
 
-### 方法 1: 原始 plist 内容 (推荐) 🌟
+### 方法 1: Base64 编码的 plist 内容 (推荐) 🌟
 
 | Secret 名称                | 描述                    | 生成方法                         |
 | -------------------------- | ----------------------- | -------------------------------- |
-| `GOOGLE_SERVICE_INFO_PLIST` | 原始 XML 格式的 plist 内容 | 使用 `scripts/setup_firebase_plist.sh` |
+| `GOOGLE_SERVICE_INFO_PLIST` | Base64 编码的 plist 文件内容 | 使用 `scripts/setup_firebase_plist.sh` |
 
 **优势**：
-- ✅ 直接使用原始 XML 内容，无需编码/解码
-- ✅ 更简单的 CI/CD 配置
-- ✅ 易于调试和验证
-- ✅ 保持完整的文件格式
+- ✅ 保持原始 plist 文件格式和结构
+- ✅ 避免手动输入配置可能产生的错误
+- ✅ 自动化的编码/解码处理
+- ✅ 安全的文本格式传输
 
 **设置步骤**：
 ```bash
@@ -99,9 +99,9 @@ chmod +x scripts/setup_firebase_plist.sh
 
 GitHub Actions 现在会：
 
-### 方法 1: 原始 plist 内容 (当前使用)：
-1. 📥 从 `GOOGLE_SERVICE_INFO_PLIST` Secret 读取原始 XML 内容
-2. 📝 直接写入 `GoogleService-Info.plist` 文件
+### 方法 1: Base64 编码的 plist 内容 (当前使用)：
+1. 📥 从 `GOOGLE_SERVICE_INFO_PLIST` Secret 读取 Base64 编码内容
+2. 🔓 解码 Base64 内容并创建 `GoogleService-Info.plist` 文件
 3. 🔨 构建应用
 4. 🧹 构建完成后自动清理敏感文件
 
@@ -109,7 +109,7 @@ GitHub Actions 现在会：
 ```yaml
 - name: Create GoogleService-Info.plist from Secret
   run: |
-    echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}" > Promptly/GoogleService-Info.plist
+    echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}" | base64 --decode > Promptly/GoogleService-Info.plist
 
 - name: Clean up sensitive files
   run: |

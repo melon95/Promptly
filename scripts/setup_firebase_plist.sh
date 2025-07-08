@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Firebase plist 原始内容设置脚本
-# 用于为GitHub Actions生成原始XML内容的GoogleService-Info.plist
+# Firebase plist Base64编码设置脚本
+# 用于为GitHub Actions生成Base64编码的GoogleService-Info.plist
 
 set -e
 
-echo "🔥 Firebase Plist 原始内容配置设置"
-echo "===================================="
+echo "🔥 Firebase Plist Base64编码配置设置"
+echo "====================================="
 
 # 检查GoogleService-Info.plist文件是否存在
 PLIST_PATH="./Promptly/GoogleService-Info.plist"
@@ -21,14 +21,14 @@ fi
 
 echo "✅ 找到 GoogleService-Info.plist 文件"
 
-# 读取plist文件原始内容
+# 生成Base64编码内容
 echo ""
-echo "🔄 读取plist文件原始内容..."
-PLIST_CONTENT=$(cat "$PLIST_PATH")
+echo "🔄 生成Base64编码..."
+BASE64_CONTENT=$(base64 -i "$PLIST_PATH")
 
 # 复制到剪贴板
-echo "$PLIST_CONTENT" | pbcopy
-echo "✅ plist文件原始内容已复制到剪贴板"
+echo "$BASE64_CONTENT" | pbcopy
+echo "✅ Base64编码内容已复制到剪贴板"
 
 echo ""
 echo "📋 下一步操作:"
@@ -41,9 +41,9 @@ echo "6. 点击 'Add secret'"
 
 echo ""
 echo "⚠️  重要提醒:"
-echo "- 确保粘贴完整的XML内容，包括所有换行符"
-echo "- 检查Secret中的内容格式正确"
-echo "- XML开头应该是: <?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+echo "- 确保粘贴完整的Base64编码内容"
+echo "- Base64内容应该是一行长字符串"
+echo "- 不要在Base64字符串中添加换行符或空格"
 
 echo ""
 echo "🔒 安全提醒:"
@@ -63,5 +63,5 @@ else
 fi
 
 echo ""
-echo "🎉 原始plist内容设置完成！"
-echo "现在您的CI/CD工作流将直接使用原始XML内容。" 
+echo "🎉 Base64 plist内容设置完成！"
+echo "现在您的CI/CD工作流将解码Base64内容并生成plist文件。" 

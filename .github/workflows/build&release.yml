@@ -31,7 +31,7 @@ jobs:
 
       - name: Create GoogleService-Info.plist from Secret
         run: |
-          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}" > Promptly/GoogleService-Info.plist
+          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}" | base64 --decode > Promptly/GoogleService-Info.plist
 
       - name: Create build directory
         run: mkdir -p ./build
