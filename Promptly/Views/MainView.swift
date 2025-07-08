@@ -28,16 +28,13 @@ struct MainView: View {
     @State private var categoryCannotDelete: Category?
     @FocusState private var isSearchFocused: Bool
     
-    // 新增：详情面板相关状态
+    // add: detail panel related state
     @State private var selectedPrompt: Prompt?
-    @State private var showDetailPanel = false
     @State private var showCopySuccess = false
     
-    // 全屏相关状态
-    @State private var isFullScreen = false
-    @State private var fullScreenPrompt: Prompt?
+
     
-    // Tag搜索相关状态
+    // tag search related state
     @State private var selectedTags: Set<String> = []
     @State private var cachedTagsWithCount: [(tag: String, count: Int)] = []
     
@@ -45,20 +42,20 @@ struct MainView: View {
     private var filteredPrompts: [Prompt] {
         var filtered = prompts
         
-        // 按分类筛选
+        // filter by category
         if let category = selectedCategory {
             filtered = filtered.filter { $0.category?.id == category.id }
         }
         
-        // 只显示收藏
+        // only show favorites
         if showingOnlyFavorites {
             filtered = filtered.filter { $0.isFavorite }
         }
         
-        // Tag筛选
+        // filter by tags
         if !selectedTags.isEmpty {
             filtered = filtered.filter { prompt in
-                // 检查prompt是否包含所有选中的tags（AND逻辑）
+                // check if the prompt contains all selected tags (AND logic)
                 selectedTags.allSatisfy { selectedTag in
                     prompt.tags.contains { tag in
                         tag.localizedCaseInsensitiveContains(selectedTag)
@@ -67,7 +64,7 @@ struct MainView: View {
             }
         }
         
-        // 搜索筛选
+        // filter by search text
         if !searchText.isEmpty {
             filtered = filtered.filter { prompt in
                 prompt.title.localizedCaseInsensitiveContains(searchText) ||
@@ -76,7 +73,7 @@ struct MainView: View {
             }
         }
         
-        // 按创建时间排序
+        // sort by creation time
         return filtered.sorted { $0.createdAt > $1.createdAt }
     }
     
@@ -103,7 +100,7 @@ struct MainView: View {
     
     var body: some View {
         ZStack {
-            // Main app content
+            // Main app contentla
             HSplitView {
                 // left sidebar
                 SidebarView(
@@ -127,22 +124,7 @@ struct MainView: View {
                     .frame(minWidth: 500)
             }
             
-            // Full screen overlay (covers entire window)
-            if isFullScreen, let prompt = fullScreenPrompt {
-                FullScreenPromptView(
-                    prompt: prompt,
-                    isPresented: $isFullScreen,
-                    onCopy: copyPromptContent,
-                    onClose: {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showDetailPanel = false
-                            selectedPrompt = nil
-                        }
-                    }
-                )
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-                .zIndex(1000) // Ensure it's on top
-            }
+
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -168,6 +150,16 @@ struct MainView: View {
         }
         .sheet(item: $editingCategory) { category in
             CategoryEditorView(category: category)
+        }
+        .sheet(item: $selectedPrompt) { prompt in
+            PromptViewer(
+                prompt: prompt,
+                onClose: {
+                    selectedPrompt = nil
+                },
+                onCopy: copyPromptContent
+            )
+            .frame(minWidth: 800, minHeight: 600)
         }
         .alert("Update Available".localized, isPresented: $updateManager.isUpdateAvailable) {
             Button("Update Now".localized) {
@@ -237,244 +229,21 @@ struct MainView: View {
             Divider()
             
             // Main content area
-            if showDetailPanel {
-                // When the detail panel is displayed, use VSplitView to split up and down
-                VSplitView {
-                    // Upper part: Prompt list
-                    PromptListView(
-                        prompts: filteredPrompts,
-                        onPromptSelected: { prompt in
-                            selectedPrompt = prompt
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showDetailPanel = true
-                            }
-                        },
-                        onCreatePrompt: {
-                            showingAddPrompt = true
-                        }
-                    )
-                    .frame(minHeight: 200)
-                    
-                    // Lower part: Detail panel
-                    PromptDetailView(
-                        prompt: selectedPrompt,
-                        showCopySuccess: showCopySuccess,
-                        onClose: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showDetailPanel = false
-                                selectedPrompt = nil
-                            }
-                        },
-                        onCopy: copyPromptContent,
-                        onFullScreen: { prompt in
-                            fullScreenPrompt = prompt
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                isFullScreen = true
-                            }
-                        }
-                    )
-                    .frame(minHeight: 200, maxHeight: 400)
+            PromptListView(
+                prompts: filteredPrompts,
+                onPromptSelected: { prompt in
+                    selectedPrompt = prompt
+                },
+                onCreatePrompt: {
+                    showingAddPrompt = true
                 }
-            } else {
-                // When the detail panel is not displayed, only display the Prompt list
-                PromptListView(
-                    prompts: filteredPrompts,
-                    onPromptSelected: { prompt in
-                        selectedPrompt = prompt
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showDetailPanel = true
-                        }
-                    },
-                    onCreatePrompt: {
-                        showingAddPrompt = true
-                    }
-                )
-            }
+            )
+            .background(Color(NSColor.windowBackgroundColor))
         }
     }
 }
 
-// MARK: - Full Screen Prompt View (for MainView)
-struct FullScreenPromptView: View {
-    let prompt: Prompt
-    @Binding var isPresented: Bool
-    let onCopy: (String) -> Void
-    let onClose: () -> Void
-    
-    @State private var showCopySuccess = false
-    
-    var body: some View {
-        ZStack {
-            // Background overlay with gradient
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.black.opacity(0.75),
-                    Color.black.opacity(0.85)
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea(.all)
-            .onTapGesture {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    isPresented = false
-                }
-            }
-            
-            VStack(spacing: 0) {
-                // Full screen header with improved styling
-                HStack(spacing: 16) {
-                    Text(prompt.title)
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .textSelection(.enabled)
-                        .lineLimit(2)
-                        .foregroundColor(.primary)
-                    
-                    Spacer()
-                    
-                    HStack(spacing: 12) {
-                        // Copy button
-                        Button {
-                            onCopy(prompt.userPrompt)
-                            // Show local copy success
-                            showCopySuccess = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                showCopySuccess = false
-                            }
-                        } label: {
-                            Image(systemName: "doc.on.doc")
-                                .font(.title3)
-                                .foregroundColor(.blue)
-                        }
-                        .buttonStyle(.plain)
-                        .onHover { hovering in
-                            if hovering {
-                                NSCursor.pointingHand.push()
-                            } else {
-                                NSCursor.pop()
-                            }
-                        }
-                        
-                        // Exit fullscreen button
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                isPresented = false
-                            }
-                        } label: {
-                            Image(systemName: "arrow.down.right.and.arrow.up.left")
-                                .font(.title3)
-                                .foregroundColor(.blue)
-                        }
-                        .buttonStyle(.plain)
-                        .onHover { hovering in
-                            if hovering {
-                                NSCursor.pointingHand.push()
-                            } else {
-                                NSCursor.pop()
-                            }
-                        }
-                        
-                        // Close detail view button
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                isPresented = false
-                            }
-                            onClose()
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.title3)
-                                .foregroundColor(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                        .onHover { hovering in
-                            if hovering {
-                                NSCursor.pointingHand.push()
-                            } else {
-                                NSCursor.pop()
-                            }
-                        }
-                    }
-                }
-                .padding(.horizontal, 40)
-                .padding(.top, 28)
-                .padding(.bottom, 20)
-                .background(
-                    Color(NSColor.controlBackgroundColor)
-                        .opacity(0.95)
-                )
-                
-                // Subtle divider
-                Rectangle()
-                    .fill(Color.secondary.opacity(0.3))
-                    .frame(height: 1)
-                
-                // Full screen content with improved styling and syntax highlighting
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        ContentRenderer.highlightTextForFullScreen(prompt.userPrompt)
-                            .lineSpacing(6)
-                            .textSelection(.enabled)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .padding(.horizontal, 40)
-                    .padding(.top, 28)
-                    .padding(.bottom, 40)
-                }
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color(NSColor.textBackgroundColor).opacity(0.98),
-                            Color(NSColor.textBackgroundColor).opacity(0.95)
-                        ]),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-            }
-            .frame(maxWidth: 950, maxHeight: .infinity)  // Slightly wider for better reading
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(NSColor.windowBackgroundColor).opacity(0.98))
-                    .shadow(color: .black.opacity(0.3), radius: 30, x: 0, y: 10)
-            )
-            .overlay(
-                // Copy success toast for full screen
-                fullScreenCopySuccessToast
-                    .allowsHitTesting(false)
-            )
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-    
-    @ViewBuilder
-    private var fullScreenCopySuccessToast: some View {
-        if showCopySuccess {
-            VStack {
-                HStack(spacing: 12) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                        .font(.title3)
-                    Text("Copied to Clipboard")
-                        .font(.headline)
-                        .fontWeight(.medium)
-                        .foregroundColor(.primary)
-                }
-                .padding(.vertical, 16)
-                .padding(.horizontal, 24)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(.regularMaterial)
-                        .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
-                )
-                
-                Spacer()
-            }
-            .padding(.top, 80)
-            .transition(.move(edge: .top).combined(with: .opacity))
-        }
-    }
-}
+
 
 // MARK: - MainView extension - keyboard shortcuts
 extension MainView {
@@ -484,9 +253,9 @@ extension MainView {
         NotificationCenter.default.addObserver(
             forName: .showAddPrompt,
             object: nil,
-            queue: nil // 在任意线程监听
+            queue: nil // listen on any thread
         ) { _ in
-            // 切换到主线程来更新UI状态
+            // switch to main thread to update UI state
             Task { @MainActor in
                 self.showingAddPrompt = true
             }
@@ -496,9 +265,9 @@ extension MainView {
         NotificationCenter.default.addObserver(
             forName: .showFavorites,
             object: nil,
-            queue: nil // 在任意线程监听
+            queue: nil // listen on any thread
         ) { _ in
-            // 切换到主线程来更新UI状态
+            // switch to main thread to update UI state
             Task { @MainActor in
                 self.showingOnlyFavorites = true
                 self.selectedCategory = nil
@@ -509,9 +278,9 @@ extension MainView {
         NotificationCenter.default.addObserver(
             forName: .focusSearch,
             object: nil,
-            queue: nil // 在任意线程监听
+            queue: nil // listen on any thread
         ) { _ in
-            // 切换到主线程来更新UI状态
+            // switch to main thread to update UI state
             Task { @MainActor in
                 self.isSearchFocused = true
             }
@@ -521,9 +290,9 @@ extension MainView {
         NotificationCenter.default.addObserver(
             forName: .toggleQuickAccess,
             object: nil,
-            queue: nil // Listen on any thread
+            queue: nil // listen on any thread
         ) { _ in
-            // Switch to the main thread to call the main thread method
+            // switch to main thread to call the main thread method
             Task { @MainActor in
                 self.showQuickAccessWindow()
             }
@@ -554,7 +323,7 @@ extension MainView {
         }
     }
     
-    // 检查分类是否被使用
+    // check if the category is in use
     private func isCategoryInUse(_ category: Category) -> Bool {
         return prompts.contains { $0.category?.id == category.id }
     }

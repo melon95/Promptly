@@ -195,6 +195,16 @@
 "language.changed.restart" = "Restart App";
 "language.changed.later" = "Later";
 
+// MARK: - PromptViewer
+"Copy Content" = "Copy Content";
+"Copied to Clipboard" = "Copied to Clipboard";
+"Copy prompt" = "Copy prompt";
+"Full screen" = "Full screen";
+"Close detail panel" = "Close detail panel";
+"Select a prompt to view details" = "Select a prompt to view details";
+"Drag the separator above to resize this panel" = "Drag the separator above to resize this panel";
+"Double-click to auto-size" = "Double-click to auto-size";
+
 // MARK: - GitHub
 "github.title" = "GitHub";
 "github.description" = "View source code and more information";

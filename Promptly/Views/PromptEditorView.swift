@@ -259,13 +259,12 @@ struct PromptEditorView: View {
                         .foregroundColor(Color(NSColor.placeholderTextColor))
                         .font(.system(.body, design: .monospaced))
                         .padding(.leading, 5)
-                        .padding(.top, 8)
+                        .padding(.top, 0)
                         .allowsHitTesting(false)
                 }
             }
             .frame(minHeight: 200)
             .padding(12)
-            .frame(minHeight: 200)
             .background(Color(NSColor.textBackgroundColor))
             .cornerRadius(8)
             .overlay(

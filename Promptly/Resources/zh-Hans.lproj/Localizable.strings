@@ -195,6 +195,16 @@
 "language.changed.restart" = "重启应用";
 "language.changed.later" = "稍后";
 
+// MARK: - PromptViewer
+"Copy Content" = "复制内容";
+"Copied to Clipboard" = "已复制到剪贴板";
+"Copy prompt" = "复制提示词";
+"Full screen" = "全屏";
+"Close detail panel" = "关闭详情面板";
+"Select a prompt to view details" = "选择一个提示词以查看详情";
+"Drag the separator above to resize this panel" = "拖动上方分隔线调整面板大小";
+"Double-click to auto-size" = "双击自动调整大小";
+
 // MARK: - GitHub
 "github.title" = "GitHub";
 "github.description" = "查看源代码和更多信息";
