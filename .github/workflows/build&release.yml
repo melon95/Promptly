@@ -31,11 +31,9 @@ jobs:
 
       - name: Create GoogleService-Info.plist from Secret
         run: |
-          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}" | base64 --decode > Promptly/GoogleService-Info.plist
-
+          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}" | base64 --decode > ./Promptly/GoogleService-Info.plist
       - name: Create build directory
         run: mkdir -p ./build
-
       - name: Build and Archive App
         run: |
           xcodebuild archive \
@@ -77,7 +75,7 @@ jobs:
 
       - name: Clean up sensitive files
         run: |
-          rm -f Promptly/GoogleService-Info.plist
+          rm -f ./Promptly/GoogleService-Info.plist
 
       - name: Upload DMG Artifact
         uses: actions/upload-artifact@v4
