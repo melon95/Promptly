@@ -18,94 +18,133 @@ struct PromptDetailView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Detail panel title bar (display prompt title + copy button + fullscreen button + close button)
-            HStack {
-                if let prompt = prompt {
-                    Text(prompt.title)
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .textSelection(.enabled)
-                        .lineLimit(1)
-                    
-                    Spacer()
-                    
-                    // Copy button
-                    Button {
-                        onCopy(prompt.userPrompt)
-                    } label: {
-                        Image(systemName: "doc.on.doc")
-                            .font(.title3)
-                            .foregroundColor(.blue)
-                    }
-                    .buttonStyle(.plain)
-                    .onHover { hovering in
-                        if hovering {
-                            NSCursor.pointingHand.push()
-                        } else {
-                            NSCursor.pop()
-                        }
-                    }
-                    
-                    // Fullscreen button
-                    Button {
-                        onFullScreen(prompt)
-                    } label: {
-                        Image(systemName: "arrow.up.left.and.arrow.down.right")
-                            .font(.title3)
-                            .foregroundColor(.blue)
-                    }
-                    .buttonStyle(.plain)
-                    .onHover { hovering in
-                        if hovering {
-                            NSCursor.pointingHand.push()
-                        } else {
-                            NSCursor.pop()
-                        }
-                    }
-                } else {
-                    Text("Prompt Details".localized)
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                    
-                    Spacer()
-                }
-                
-                Button {
-                    onClose()
-                } label: {
-                    Image(systemName: "xmark")
-                        .foregroundColor(.secondary)
-                }
-                .buttonStyle(.plain)
-                .onHover { hovering in
-                    if hovering {
-                        NSCursor.pointingHand.push()
-                    } else {
-                        NSCursor.pop()
-                    }
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
-            .background(Color(NSColor.controlBackgroundColor))
-            
-            Divider()
-            
-            // Detail content
+            // Simplified header - no title bar, just action buttons
             if let prompt = prompt {
-                // Prompt content
-                ScrollView {
-                    ContentRenderer.render(prompt.userPrompt)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(16)
-                }
-            } else {
-                VStack {
-                    Spacer()
-                    Text("No prompt selected".localized)
+                HStack {
+                    // Compact prompt title
+                    Text(prompt.title)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
                         .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .textSelection(.enabled)
+                    
                     Spacer()
+                    
+                    // Compact action buttons
+                    HStack(spacing: 8) {
+                        // Copy button
+                        Button {
+                            onCopy(prompt.userPrompt)
+                        } label: {
+                            Image(systemName: "doc.on.doc")
+                                .font(.system(size: 14))
+                                .foregroundColor(.blue)
+                        }
+                        .buttonStyle(.plain)
+                        .help("Copy prompt".localized)
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
+                        
+                        // Fullscreen button
+                        Button {
+                            onFullScreen(prompt)
+                        } label: {
+                            Image(systemName: "arrow.up.left.and.arrow.down.right")
+                                .font(.system(size: 14))
+                                .foregroundColor(.blue)
+                        }
+                        .buttonStyle(.plain)
+                        .help("Full screen".localized)
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
+                        
+                        // Close button
+                        Button {
+                            onClose()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 14))
+                                .foregroundColor(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .help("Close detail panel".localized)
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
+                    }
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+                
+                // Subtle divider
+                Divider()
+                    .opacity(0.5)
+            }
+            
+            // Main content area
+            if let prompt = prompt {
+                // Prompt content with improved layout
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ContentRenderer.render(prompt.userPrompt)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .textSelection(.enabled)
+                    }
+                    .padding(20)
+                }
+                .background(Color(NSColor.textBackgroundColor))
+            } else {
+                // Empty state with enhanced instructions
+                VStack(spacing: 16) {
+                    VStack(spacing: 8) {
+                        Image(systemName: "doc.text")
+                            .font(.system(size: 32))
+                            .foregroundColor(.secondary.opacity(0.6))
+                        
+                        Text("Select a prompt to view details".localized)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    VStack(spacing: 8) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "hand.draw")
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                            Text("Drag the separator above to resize this panel".localized)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.up.arrow.down")
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                            Text("Double-click to auto-size".localized)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(NSColor.textBackgroundColor))
             }
         }
         .background(Color(NSColor.windowBackgroundColor))
@@ -124,19 +163,24 @@ struct PromptDetailView: View {
     @ViewBuilder
     private var copySuccessToast: some View {
         if showCopySuccess {
-            HStack(spacing: 8) {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.green)
-                Text("prompt.copied".localized)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+            VStack {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                    Text("Copied to Clipboard".localized)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                }
+                .padding(.vertical, 10)
+                .padding(.horizontal, 16)
+                .background(.regularMaterial)
+                .cornerRadius(20)
+                .shadow(radius: 5)
+                .transition(.move(edge: .top).combined(with: .opacity))
+                
+                Spacer()
             }
-            .padding(.vertical, 10)
-            .padding(.horizontal, 16)
-            .background(.regularMaterial)
-            .cornerRadius(20)
-            .shadow(radius: 5)
-            .transition(.move(edge: .top).combined(with: .opacity))
+            .padding(.top, 20)
         }
     }
 }  
