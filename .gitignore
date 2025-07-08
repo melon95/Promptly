@@ -16,11 +16,14 @@ google-services.json
 **/*credential*
 
 # Xcode
-*.xcuserdata/
-*.xcworkspace/xcuserdata/
+**/xcuserdata/
+**/*.xcuserdata/
+**/project.xcworkspace/xcuserdata/
 DerivedData/
 *.hmap
 *.ipa
+**/UserInterfaceState.xcuserstate
+**/xcschemes/xcschememanagement.plist
 
 # Build artifacts
 build/
@@ -39,3 +42,10 @@ Pods/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Build logs
+build.log
+*.log
+
+# Personal TODO files
+TODO.md
