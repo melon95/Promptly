@@ -32,15 +32,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // setup simplified analytics manager
         AnalyticsManager.shared.setupLifecycleTracking()
         
-        // set basic user properties
-        Analytics.setUserProperty("macOS", forName: "platform")
-        Analytics.setUserProperty(getAppVersion(), forName: "app_version")
-        
+        // Version information collection will be handled in startSession
         print("📊 Analytics: ready for PV/UV tracking")
     }
     
     private func getAppVersion() -> String {
-        return Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
+        print("📊 App Version: \(version)")
+        return version
     }
 }
 
