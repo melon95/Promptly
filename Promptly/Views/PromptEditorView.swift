@@ -126,7 +126,7 @@ struct PromptEditorView: View {
             HStack(alignment: .top) {
                 TextField("Enter description (optional)...".localized, text: $description, axis: .vertical)
                     .textFieldStyle(.plain)
-                    .lineLimit(3...6)
+                    .lineLimit(2...6)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
@@ -263,7 +263,7 @@ struct PromptEditorView: View {
                         .allowsHitTesting(false)
                 }
             }
-            .frame(minHeight: 200)
+            .frame(minHeight: 150)
             .padding(12)
             .background(Color(NSColor.textBackgroundColor))
             .cornerRadius(8)

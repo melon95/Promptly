@@ -31,6 +31,7 @@ struct MainView: View {
     // add: detail panel related state
     @State private var selectedPrompt: Prompt?
     @State private var showCopySuccess = false
+    @State private var showingRecycleBin = false
     
 
     
@@ -128,16 +129,31 @@ struct MainView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    showingAddPrompt = true
-                } label: {
-                    Label("New Prompt".localized, systemImage: "plus")
-                }
-                .onHover { hovering in
-                    if hovering {
-                        NSCursor.pointingHand.push()
-                    } else {
-                        NSCursor.pop()
+                HStack {
+                    Button {
+                        showingRecycleBin = true
+                    } label: {
+                        Label("Recycle Bin".localized, systemImage: "trash")
+                    }
+                    .onHover { hovering in
+                        if hovering {
+                            NSCursor.pointingHand.push()
+                        } else {
+                            NSCursor.pop()
+                        }
+                    }
+                    
+                    Button {
+                        showingAddPrompt = true
+                    } label: {
+                        Label("New Prompt".localized, systemImage: "plus")
+                    }
+                    .onHover { hovering in
+                        if hovering {
+                            NSCursor.pointingHand.push()
+                        } else {
+                            NSCursor.pop()
+                        }
                     }
                 }
             }
@@ -147,6 +163,9 @@ struct MainView: View {
         }
         .sheet(isPresented: $showingAddCategory) {
             CategoryEditorView()
+        }
+        .sheet(isPresented: $showingRecycleBin) {
+            RecycleBinView()
         }
         .sheet(item: $editingCategory) { category in
             CategoryEditorView(category: category)
@@ -203,6 +222,9 @@ struct MainView: View {
             
             // Initialize tags cache
             updateTagsCache()
+            
+            // cleanup expired recycle bin items
+            cleanupRecycleBin()
         }
         .onChange(of: prompts) { _, _ in
             // When prompts change, update tags cache
@@ -348,6 +370,20 @@ extension MainView {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             withAnimation(.spring()) {
                 showCopySuccess = false
+            }
+        }
+    }
+    
+    // cleanup expired recycle bin items
+    private func cleanupRecycleBin() {
+        let recycleBinManager = RecycleBinManager(modelContext: modelContext)
+        
+        Task {
+            do {
+                try await Task.sleep(nanoseconds: 1_000_000_000) // Wait 1 second
+                try recycleBinManager.cleanupExpiredItems()
+            } catch {
+                print("Failed to cleanup recycle bin: \(error)")
             }
         }
     }

@@ -205,16 +205,16 @@ struct PromptCard: View {
         }
     }
     
-    // delete prompt
+    // delete prompt (move to recycle bin)
     private func deletePrompt() {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            modelContext.delete(prompt)
-        }
+        let recycleBinManager = RecycleBinManager(modelContext: modelContext)
         
-        do {
-            try modelContext.save()
-        } catch {
-            print("Failed to delete prompt: \(error)")
+        withAnimation(.easeInOut(duration: 0.3)) {
+            do {
+                try recycleBinManager.moveToRecycleBin(prompt)
+            } catch {
+                print("Failed to move prompt to recycle bin: \(error)")
+            }
         }
     }
     

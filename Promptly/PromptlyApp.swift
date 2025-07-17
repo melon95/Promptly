@@ -12,6 +12,8 @@ import FirebaseAnalytics
 
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    var modelContainer: ModelContainer?
+    
     func applicationDidFinishLaunching(_ notification: Notification) {
         // configure Firebase
         FirebaseApp.configure()
@@ -34,6 +36,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Version information collection will be handled in startSession
         print("📊 Analytics: ready for PV/UV tracking")
+        
+        // Setup periodic cleanup for recycle bin
+        setupRecycleBinCleanup()
+    }
+    
+    @MainActor
+    private func setupRecycleBinCleanup() {
+        // Create a timer that runs every 6 hours to cleanup expired items
+        Timer.scheduledTimer(withTimeInterval: 6 * 60 * 60, repeats: true) { _ in
+            Task { @MainActor in
+                // Get the shared model container from the app delegate
+                if let app = NSApplication.shared.delegate as? AppDelegate,
+                   let modelContainer = app.modelContainer {
+                    let modelContext = modelContainer.mainContext
+                    let recycleBinManager = RecycleBinManager(modelContext: modelContext)
+                    do {
+                        try recycleBinManager.cleanupExpiredItems()
+                    } catch {
+                        print("Background cleanup failed: \(error)")
+                    }
+                }
+            }
+        }
     }
     
     private func getAppVersion() -> String {
@@ -52,7 +77,8 @@ struct PromptlyApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Prompt.self,
-            Category.self
+            Category.self,
+            RecycleBinItem.self
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,
@@ -70,6 +96,12 @@ struct PromptlyApp: App {
         // main window
         WindowGroup("Promptly") {
             ContentView()
+                .onAppear {
+                    // Set the model container reference in the app delegate
+                    if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
+                        appDelegate.modelContainer = sharedModelContainer
+                    }
+                }
         }
         .windowResizability(.contentSize)
         .modelContainer(sharedModelContainer)

@@ -227,4 +227,28 @@
 "Update Available" = "Update Available";
 "Update Now" = "Update Now";
 "Later" = "Later";
-"A new version of Promptly is available. Do you want to update now?" = "A new version of Promptly is available. Do you want to update now?"; 
+"A new version of Promptly is available. Do you want to update now?" = "A new version of Promptly is available. Do you want to update now?";
+
+// MARK: - Recycle Bin
+"Recycle Bin" = "Recycle Bin";
+"Recycle Bin is Empty" = "Recycle Bin is Empty";
+"Deleted prompts will appear here and be automatically removed after 30 days." = "Deleted prompts will appear here and be automatically removed after 30 days.";
+"Empty Recycle Bin" = "Empty Recycle Bin";
+"Are you sure you want to permanently delete all items in the recycle bin? This action cannot be undone." = "Are you sure you want to permanently delete all items in the recycle bin? This action cannot be undone.";
+"Empty" = "Empty";
+"Delete Items" = "Delete Items";
+"Are you sure you want to permanently delete the selected items? This action cannot be undone." = "Are you sure you want to permanently delete the selected items? This action cannot be undone.";
+"Restore" = "Restore";
+"Restore Selected" = "Restore Selected";
+"Delete Selected" = "Delete Selected";
+"Delete Permanently" = "Delete Permanently";
+"Close" = "Close";
+"Error" = "Error";
+"Failed to restore prompt: %@" = "Failed to restore prompt: %@";
+"Failed to delete prompt: %@" = "Failed to delete prompt: %@";
+"Failed to restore prompts: %@" = "Failed to restore prompts: %@";
+"Failed to delete prompts: %@" = "Failed to delete prompts: %@";
+"Failed to empty recycle bin: %@" = "Failed to empty recycle bin: %@";
+"%d items" = "%d items";
+"%d days left" = "%d days left";
+"Deleted %@" = "Deleted %@"; 
