@@ -158,12 +158,57 @@ xcodebuild -scheme Promptly -destination 'platform=macOS' test -only-testing:Pro
 
 Pull Requests and Issues are welcome!
 
+### Git Commit Message Format
+
+This project follows [Conventional Commits](https://www.conventionalcommits.org/) specification. All commit messages must follow the format:
+
+```
+<type>(<scope>): <subject>
+```
+
+#### Allowed Types
+- `feat`: New features
+- `fix`: Bug fixes
+- `perf`: Performance improvements
+- `refactor`: Code restructuring without changing functionality
+
+#### Examples
+```bash
+feat(auth): add user authentication
+fix(ui): resolve button alignment issue
+perf(search): optimize search algorithm
+refactor(models): restructure data models
+```
+
+#### Rules
+- Subject must start with lowercase letter
+- Subject length: 1-50 characters
+- No period at end of subject
+- Total first line max: 72 characters
+- Scope is optional but must be lowercase with hyphens if used
+
+### Installing Git Hooks
+
+To ensure your commits follow the required format, install the git hooks:
+
+```bash
+# Install git hooks for commit validation
+./scripts/install_git_hook.sh
+```
+
+This will install:
+- **commit-msg hook**: Validates commit message format
+- **pre-commit hook**: Checks for code quality issues
+
+### Contributing Steps
+
 1. Fork this project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Run local tests (`./scripts/local-build-test.sh full`)
-4. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-5. Push to the branch (`git push origin feature/AmazingFeature`)
-6. Open a Pull Request
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Install git hooks (`./scripts/install_git_hook.sh`)
+4. Make your changes and commit following the format above
+5. Run local tests (`./scripts/local-build-test.sh full`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
 ---
 

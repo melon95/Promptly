@@ -158,12 +158,57 @@ xcodebuild -scheme Promptly -destination 'platform=macOS' test -only-testing:Pro
 
 欢迎提交 Pull Request 和 Issue！
 
+### Git 提交信息格式
+
+本项目遵循 [约定式提交](https://www.conventionalcommits.org/zh-hans/) 规范。所有提交信息必须遵循以下格式：
+
+```
+<type>(<scope>): <subject>
+```
+
+#### 允许的类型
+- `feat`: 新功能
+- `fix`: Bug 修复
+- `perf`: 性能优化
+- `refactor`: 代码重构（不改变功能）
+
+#### 示例
+```bash
+feat(auth): add user authentication
+fix(ui): resolve button alignment issue
+perf(search): optimize search algorithm
+refactor(models): restructure data models
+```
+
+#### 规则
+- 主题必须以小写字母开头
+- 主题长度：1-50 字符
+- 主题结尾不要句号
+- 首行总长度最多 72 字符
+- 范围(scope)是可选的，如果使用必须是小写字母加连字符
+
+### 安装 Git Hooks
+
+为确保你的提交遵循规定格式，请安装 git hooks：
+
+```bash
+# 安装 git hooks 进行提交验证
+./scripts/install_git_hook.sh
+```
+
+这将安装：
+- **commit-msg hook**: 验证提交信息格式
+- **pre-commit hook**: 检查代码质量问题
+
+### 贡献步骤
+
 1. Fork 这个项目
-2. 创建你的功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 运行本地测试 (`./scripts/local-build-test.sh full`)
-4. 提交你的修改 (`git commit -m 'Add some AmazingFeature'`)
-5. 推送到分支 (`git push origin feature/AmazingFeature`)
-6. 打开一个 Pull Request
+2. 创建你的功能分支 (`git checkout -b feature/amazing-feature`)
+3. 安装 git hooks (`./scripts/install_git_hook.sh`)
+4. 进行修改并按照上述格式提交
+5. 运行本地测试 (`./scripts/local-build-test.sh full`)
+6. 推送到分支 (`git push origin feature/amazing-feature`)
+7. 打开一个 Pull Request
 
 ---
 

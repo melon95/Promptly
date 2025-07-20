@@ -95,6 +95,42 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch complete commit history for changelog generation
+
+      - name: Install git-cliff
+        uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff
+
+      - name: Generate changelog with git-cliff
+        run: |
+          # Generate complete changelog
+          git-cliff --output CHANGELOG.md
+          
+          # Generate current version release notes
+          git-cliff --latest --strip all > release_notes.md
+          
+          # Set release notes environment variable
+          if [ -s release_notes.md ]; then
+            echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+            cat release_notes.md >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          else
+            echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+            echo "## ${{ github.ref_name }}" >> $GITHUB_ENV
+            echo "" >> $GITHUB_ENV
+            echo "New release based on tag ${{ github.ref_name }}." >> $GITHUB_ENV
+            echo "The DMG file below was automatically built by GitHub Actions." >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          fi
+
+      - name: Commit changelog
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "chore: update changelog for ${{ github.ref_name }} [skip ci]" || echo "No changes to commit"
 
       - name: Download DMG Artifact
         uses: actions/download-artifact@v4
@@ -107,7 +143,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: Promptly.dmg
           name: Release ${{ github.ref_name }}
-          body: |
-            New release based on tag ${{ github.ref_name }}.
-            The DMG file below was automatically built by GitHub Actions.
+          body: ${{ env.RELEASE_NOTES }}
           prerelease: false
